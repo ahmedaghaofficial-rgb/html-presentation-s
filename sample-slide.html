@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>سلايد نموذج — أسلوب Syntax Academy</title>
+<!--
+  ════════════════════════════════════════════════════════════════
+  سلايد واحد بأسلوب Syntax Academy — HTML + CSS + Canvas، ملف واحد.
+  مفيش أي مكتبة ولا build. افتحه في المتصفح على طول.
+
+  ده المرجع البصري للبرومبت (PROMPT.md). أي AI بيقرا البرومبت
+  المفروض يطلّع حاجة شكلها كده.
+
+  https://github.com/mostfamohamedrgab/syntax-deck-demo
+  ════════════════════════════════════════════════════════════════
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Lemonada:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  /* ── لون الفصل الحالي — ده اللي بيتغيّر من فصل للتاني ── */
+  --c:#f59e0b; --c-2:#fbbf24;
+  --c-grad:linear-gradient(90deg,var(--c),var(--c-2));
+
+  /* ── ثوابت الهوية ── */
+  --bg:#07070d; --card:rgba(18,18,28,.82); --border:rgba(255,255,255,.06);
+  --tp:#f0eeff; --ts:#8a8aa3; --tm:#4b4b62;
+  --syntax-grad:linear-gradient(135deg,#6366f1,#a855f7,#ec4899);
+}
+*{box-sizing:border-box}
+body{
+  margin:0;padding:22px 18px 32px;background:var(--bg);color:var(--tp);
+  font-family:Cairo,sans-serif;display:flex;flex-direction:column;align-items:center;
+  min-height:100vh;
+}
+
+/* ── شريط البراند ── */
+.brand-bar{width:100%;max-width:1100px;display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.brand-left{display:flex;align-items:center;gap:11px}
+.brand-name{font-size:15px;font-weight:900;background:var(--syntax-grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.brand-sub{font-size:11px;color:var(--tm);font-weight:600}
+.brand-right{display:flex;align-items:center;gap:14px;font-size:11px;color:var(--tm);font-weight:700}
+.live-dot{width:7px;height:7px;border-radius:50%;background:#ec4899;display:inline-block;margin-inline-end:5px;animation:blink 1.6s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
+
+/* ── الستيج ١٦:٩ ── */
+.vp{
+  width:1100px;max-width:100%;aspect-ratio:16/9;position:relative;
+  border-radius:20px;overflow:hidden;border:1px solid var(--border);background:var(--bg);
+  box-shadow:0 0 0 1px rgba(168,85,247,.08),0 32px 70px rgba(0,0,0,.8);
+}
+.vp-bg{position:absolute;inset:0;width:100%;height:100%;display:block;z-index:0}
+.vp-progress{position:absolute;top:0;inset-inline:0;height:3px;background:rgba(255,255,255,.05);z-index:6}
+.vp-progress span{display:block;height:100%;width:45%;background:var(--syntax-grad);box-shadow:0 0 12px #a855f7;border-radius:0 3px 3px 0}
+.slide-counter{
+  position:absolute;top:14px;left:50%;transform:translateX(-50%);z-index:6;
+  padding:5px 14px;border-radius:999px;background:rgba(12,12,20,.75);
+  border:1px solid var(--border);font-size:12px;font-weight:800;color:var(--ts)
+}
+
+/* ── السلايد ── */
+.slide{position:absolute;inset:0;display:flex;flex-direction:column;padding:38px 56px 56px;z-index:2}
+.slide>*{animation:revealUp .6s ease both}
+.slide>*:nth-child(2){animation-delay:.08s}
+.slide>*:nth-child(3){animation-delay:.16s}
+.slide>*:nth-child(4){animation-delay:.24s}
+.slide>*:nth-child(5){animation-delay:.32s}
+@keyframes revealUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+
+.lbl{font-size:12.5px;font-weight:800;color:var(--c);margin-bottom:8px;letter-spacing:.2px}
+h2{margin:0 0 8px;font-size:26px;font-weight:900;line-height:1.5}
+h2 em{font-style:normal;background:var(--c-grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.sub{margin:0;font-size:15px;color:var(--ts);line-height:1.9;max-width:760px}
+.sub strong{color:var(--tp)}
+.stage{flex:1;display:flex;align-items:center;justify-content:center;min-height:0;margin-top:10px}
+
+/* ── الفوتر ── */
+.sf{display:flex;align-items:center;justify-content:space-between;font-size:11px;color:var(--tm);font-weight:600}
+.pd{display:flex;gap:5px}
+.dot{width:5px;height:5px;border-radius:99px;background:rgba(255,255,255,.14);transition:.3s}
+.dot.on{width:18px;background:var(--c-grad)}
+
+/* ── حاوية الرسمة ──
+   height:100% مع max-height: الرسمة بتاخد المساحة المتاحة في الستيج ومبتخرجش
+   برّه الكادر. لو حطيت ارتفاع ثابت هنا، الفوتر بينزل تحت الإطار. */
+.viz{position:relative;width:100%;height:100%;max-height:330px}
+.viz canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+
+.hint{max-width:1100px;width:100%;margin-top:14px;font-size:12px;color:var(--tm);line-height:1.9;text-align:center}
+.hint code{color:#c7b3ff;font-family:ui-monospace,monospace}
+</style>
+</head>
+<body>
+
+<div class="brand-bar">
+  <div class="brand-left">
+    <canvas id="brain" width="34" height="34" style="width:34px;height:34px"></canvas>
+    <div>
+      <div class="brand-name">اسم الكورس</div>
+      <div class="brand-sub">الدرس ١ · اسم الدرس · Syntax Academy</div>
+    </div>
+  </div>
+  <div class="brand-right"><span><span class="live-dot"></span>LIVE</span></div>
+</div>
+
+<div class="vp">
+  <canvas class="vp-bg" id="amb"></canvas>
+  <div class="vp-progress"><span></span></div>
+  <div class="slide-counter">٥ / ١٠</div>
+
+  <div class="slide">
+    <div class="lbl">تعال نرسمها مع بعض</div>
+    <h2>التلات طبقات — و<em>ليه ترتيبهم كده</em></h2>
+    <p class="sub">الفكرة مبتتقالش بالكلام بس — <strong>بتتُرسم قدام المتفرج</strong> وهي بتتبني خطوة خطوة.</p>
+    <div class="stage"><div class="viz"><canvas id="viz"></canvas></div></div>
+    <div class="sf">
+      <span>Syntax Academy</span>
+      <div class="pd"><i class="dot"></i><i class="dot"></i><i class="dot"></i><i class="dot"></i><i class="dot on"></i><i class="dot"></i><i class="dot"></i><i class="dot"></i><i class="dot"></i><i class="dot"></i></div>
+      <span>الرسمة بتتبني وانت بتشرح</span>
+    </div>
+  </div>
+</div>
+
+<p class="hint">
+  سلايد واحد بأسلوب Syntax Academy — <code>HTML + CSS + Canvas</code> في ملف واحد، بلا مكتبات.<br>
+  غيّر <code>--c</code> و<code>--c-2</code> فوق عشان تغيّر لون الفصل، والباقي بيمشي وراهم.
+</p>
+
+<script>
+/* ═══════════════ الأساسات (نفس فلسفة @lib/viz) ═══════════════ */
+const CL={indigo:'#6366f1',violet:'#a855f7',pink:'#ec4899',cyan:'#67e8f9',green:'#34d399',amber:'#fbbf24',chalk:'#eef0ff',dim:'#8a8aa3',board:'#0a0a13'};
+const at=(f,a,b)=>Math.min(1,Math.max(0,(f-a)/(b-a)));
+const ease=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
+
+/** DPR + ResizeObserver — بيرجّع حالة حيّة {ctx,W,H}
+    مهم: أول ما السكربت يشتغل ممكن يكون اللياوت لسه مااستقرّش والعرض = ٠،
+    والـResizeObserver مبيتنفّذش في كل البيئات (تاب مخفي / headless).
+    فبنعيد المحاولة كام مرة بدل ما نعتمد عليه لوحده. */
+function fit(cv){
+  const ctx=cv.getContext('2d'),DPR=Math.min(devicePixelRatio||1,2),s={ctx,W:0,H:0},p=cv.parentElement;
+  const rs=()=>{
+    const w=p.clientWidth,h=p.clientHeight;
+    if(!w||!h||(w===s.W&&h===s.H))return;
+    s.W=w;s.H=h;cv.width=w*DPR;cv.height=h*DPR;ctx.setTransform(DPR,0,0,DPR,0,0);
+  };
+  rs();
+  new ResizeObserver(rs).observe(p);
+  addEventListener('resize',rs);
+  addEventListener('load',rs);
+  for(let i=1;i<=6;i++)setTimeout(rs,i*120);   // شبكة أمان لحد ما اللياوت يستقر
+  return s;
+}
+/** حلقة رسم لا نهائية بترجّع رقم الفريم */
+function loop(draw,s){let f=0;const t=()=>{if(!s||s.W)draw(++f);requestAnimationFrame(t)};t()}
+/** مستطيل مدوّر */
+function rr(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.arcTo(x+w,y,x+w,y+h,r);c.arcTo(x+w,y+h,x,y+h,r);c.arcTo(x,y+h,x,y,r);c.arcTo(x,y,x+w,y,r);c.closePath()}
+/** ✍️ الحركة المميّزة: بيرسم مصفوفة نقط بالتدريج زي الماركر */
+function marker(c,pts,prog,col,lw=2.4){
+  if(prog<=0||pts.length<2)return;
+  let total=0;const seg=[];
+  for(let i=1;i<pts.length;i++){const d=Math.hypot(pts[i][0]-pts[i-1][0],pts[i][1]-pts[i-1][1]);seg.push(d);total+=d}
+  const target=total*prog;c.save();
+  c.strokeStyle=col;c.lineWidth=lw;c.lineJoin='round';c.lineCap='round';c.shadowColor=col;c.shadowBlur=6;
+  c.beginPath();c.moveTo(pts[0][0],pts[0][1]);let acc=0;
+  for(let i=1;i<pts.length;i++){const d=seg[i-1];
+    if(acc+d<=target){c.lineTo(pts[i][0],pts[i][1]);acc+=d}
+    else{const r=(target-acc)/d;c.lineTo(pts[i-1][0]+(pts[i][0]-pts[i-1][0])*r,pts[i-1][1]+(pts[i][1]-pts[i-1][1])*r);break}
+  }
+  c.stroke();c.restore();
+}
+/** نص — font:'marker' بيستخدم Lemonada (خط السبورة) */
+function txt(c,s,x,y,o={}){
+  const{size=13,col=CL.chalk,weight=800,align='center',a=1,font='cairo'}=o;
+  c.save();c.globalAlpha=a;c.font=`${weight} ${size}px ${font==='marker'?'Lemonada, Cairo':'Cairo'}, sans-serif`;
+  c.fillStyle=col;c.textAlign=align;c.textBaseline='middle';c.fillText(s,x,y);c.restore();
+}
+/** سطح السبورة: غامق + شبكة نقط + إطار بجراديينت البراند بيتنفّس */
+function board(c,W,H,o={}){
+  const p=6,x=p,y=p,w=W-p*2,h=H-p*2;
+  rr(c,x,y,w,h,16);c.fillStyle=CL.board;c.fill();
+  c.save();rr(c,x,y,w,h,16);c.clip();c.fillStyle='rgba(168,85,247,.055)';
+  for(let gx=x+22;gx<x+w;gx+=26)for(let gy=y+22;gy<y+h;gy+=26){c.beginPath();c.arc(gx,gy,1,0,7);c.fill()}
+  c.restore();
+  const g=c.createLinearGradient(x,y,x+w,y+h);
+  g.addColorStop(0,CL.indigo);g.addColorStop(.5,CL.violet);g.addColorStop(1,CL.pink);
+  c.save();c.strokeStyle=g;c.lineWidth=2;c.shadowColor=CL.violet;c.shadowBlur=10+5*Math.sin((o.frame||0)*.03);
+  rr(c,x,y,w,h,16);c.stroke();c.restore();
+  if(o.title)txt(c,o.title,x+w-22,y+30,{size:17,col:CL.chalk,align:'right',font:'marker'});
+  return{x,y,w,h};
+}
+
+/* ═══════════════ ١) الخلفية — أورورا الهوية ═══════════════ */
+(function(){
+  const s=fit(document.getElementById('amb'));
+  const blobs=[[.2,.3,'#6366f1'],[.75,.25,'#a855f7'],[.55,.75,'#ec4899'],[.15,.8,'#6366f1']];
+  const dots=Array.from({length:46},()=>[Math.random(),Math.random(),Math.random()*6.28]);
+  loop(f=>{
+    const{ctx,W,H}=s;ctx.fillStyle='#07070d';ctx.fillRect(0,0,W,H);
+    ctx.globalCompositeOperation='lighter';
+    blobs.forEach(([bx,by,col],i)=>{
+      const x=W*bx+Math.sin(f*.004+i)*70, y=H*by+Math.cos(f*.003+i*1.7)*50;
+      const r=Math.min(W,H)*(.42+.05*Math.sin(f*.006+i));
+      const g=ctx.createRadialGradient(x,y,0,x,y,r);
+      g.addColorStop(0,col+'22');g.addColorStop(1,col+'00');
+      ctx.fillStyle=g;ctx.beginPath();ctx.arc(x,y,r,0,7);ctx.fill();
+    });
+    ctx.globalCompositeOperation='source-over';
+    dots.forEach(([dx,dy,ph])=>{
+      const a=.18+.18*Math.sin(f*.02+ph);
+      ctx.fillStyle=`rgba(200,190,255,${a})`;ctx.beginPath();ctx.arc(dx*W,dy*H,1.1,0,7);ctx.fill();
+    });
+    const v=ctx.createRadialGradient(W/2,H/2,Math.min(W,H)*.3,W/2,H/2,Math.max(W,H)*.75);
+    v.addColorStop(0,'rgba(5,5,9,0)');v.addColorStop(1,'rgba(5,5,9,.7)');
+    ctx.fillStyle=v;ctx.fillRect(0,0,W,H);
+  },s);
+})();
+
+/* ═══════════════ ٢) علامة البراند — نصّين مخ ═══════════════ */
+(function(){
+  const cv=document.getElementById('brain'),ctx=cv.getContext('2d'),D=Math.min(devicePixelRatio||1,2);
+  cv.width=34*D;cv.height=34*D;ctx.scale(D,D);
+  loop(f=>{
+    ctx.clearRect(0,0,34,34);
+    const g=ctx.createRadialGradient(17,17,0,17,17,17);
+    g.addColorStop(0,'rgba(168,85,247,.35)');g.addColorStop(1,'rgba(168,85,247,0)');
+    ctx.fillStyle=g;ctx.beginPath();ctx.arc(17,17,17,0,7);ctx.fill();
+    [['#f59e0b',-1],['#6366f1',1]].forEach(([col,dir])=>{
+      ctx.strokeStyle=col;ctx.lineWidth=1.6;ctx.lineCap='round';
+      ctx.beginPath();ctx.arc(17,17,10,dir>0?-1.57:1.57,dir>0?1.57:4.71);ctx.stroke();
+      for(let i=0;i<3;i++){
+        const a=(dir>0?-1.2:1.9)+i*(dir>0?1.2:1.2), r=6.5;
+        const x=17+Math.cos(a)*r*dir, y=17+Math.sin(a)*r;
+        ctx.fillStyle=col;ctx.globalAlpha=.5+.5*Math.sin(f*.06+i*2+ (dir>0?0:3));
+        ctx.beginPath();ctx.arc(x,y,1.5,0,7);ctx.fill();ctx.globalAlpha=1;
+      }
+    });
+    ctx.strokeStyle='rgba(255,255,255,.5)';ctx.lineWidth=1.4;
+    ctx.beginPath();ctx.moveTo(17,7);ctx.lineTo(17,27);ctx.stroke();
+  });
+})();
+
+/* ═══════════════ ٣) الرسمة — السبورة: ٣ طبقات بتتُرسم بالماركر ═══════════════ */
+(function(){
+  const s=fit(document.getElementById('viz'));
+  const CYCLE=620;
+  const ROWS=[
+    {t:'سياق',       d:'إنت مين وبتشتغل على إيه', c:CL.cyan},
+    {t:'مهمة',       d:'عايزه يعمل إيه — فعل واحد', c:CL.violet},
+    {t:'شكل الخروج', d:'يرجّعلك إيه بالظبط',        c:CL.pink},
+  ];
+  loop(frame=>{
+    const{ctx,W,H}=s;ctx.clearRect(0,0,W,H);
+    const f=frame%CYCLE;
+    const b=board(ctx,W,H,{title:'أي فكرة = ٣ طبقات',frame});
+    const cx=b.x+b.w/2, bw=Math.min(250,b.w*.42), bh=44, top=b.y+58, gap=14;
+
+    ROWS.forEach((r,i)=>{
+      const y=top+i*(bh+gap);
+      const pBox=at(f,18+i*62,88+i*62);   // الصندوق بيتُرسم
+      const pLbl=at(f,72+i*62,118+i*62);  // الاسم بيتكتب بعده
+      const x0=cx-bw/2, x1=cx+bw/2;
+      marker(ctx,[[x0,y],[x1,y],[x1,y+bh],[x0,y+bh],[x0,y-1]],pBox,r.c,2.4);
+      if(pLbl>0){
+        const a=ease(pLbl);
+        txt(ctx,r.t,x1-16,y+18,{size:16,col:CL.chalk,align:'right',a,font:'marker'});
+        txt(ctx,r.d,x1-16,y+34,{size:11.5,col:r.c,weight:700,align:'right',a,font:'marker'});
+        txt(ctx,String(i+1),x0+20,y+bh/2,{size:17,col:r.c,weight:900,a,font:'marker'});
+      }
+    });
+
+    // النتيجة على الشمال
+    const stackH=ROWS.length*bh+(ROWS.length-1)*gap, yMid=top+stackH/2, bx0=cx-bw/2-12;
+    const pOut=at(f,300,380);
+    if(pOut>0){
+      marker(ctx,[[bx0,yMid],[bx0-60,yMid]],at(f,300,350),CL.amber,2.2);
+      const a=ease(pOut);
+      txt(ctx,'نتيجة مظبوطة',bx0-68,yMid-8,{size:15,col:CL.green,weight:900,align:'right',a,font:'marker'});
+      txt(ctx,'من أول مرة',bx0-68,yMid+12,{size:12.5,col:CL.dim,weight:700,align:'right',a,font:'marker'});
+    }
+    const pEnd=at(f,400,470);
+    if(pEnd>0)txt(ctx,'شيل طبقة — الباقي هيتخمّن',cx,b.y+b.h-22,{size:13.5,col:CL.amber,a:ease(pEnd),font:'marker'});
+  },s);
+})();
+</script>
+</body>
+</html>

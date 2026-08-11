@@ -1,0 +1,163 @@
+---
+/**
+ * الدرس ١ — خلي الـAI يفهمك من أول مرة: الطبقات التلاتة
+ * ١٠ سلايد · الوجع → الفرق → الطبقات → نفّذ
+ *
+ * ده ديك تجريبي اتبنى بسكِل syntax-course-builder — الموضوع نفسه مثال.
+ */
+import Deck, { type DeckSlide } from '@layouts/Deck.astro';
+import SameQuestion from '@components/viz/SameQuestion.astro';
+import PromptAnatomy from '@components/viz/PromptAnatomy.astro';
+import LayersBoard from '@components/viz/LayersBoard.astro';
+import SaboraBlank from '@components/viz/SaboraBlank.astro';
+
+const slides: DeckSlide[] = [
+  { num: '١',  title: 'الاعتراض',   part: 'story', note: 'ابدأ من إحساسه هو: «الـAI مبيفهمنيش». متدافعش عن الأداة — امشي معاه.' },
+  { num: '٢',  title: 'نفس السؤال', part: 'story', note: 'سيب الرسمة تخلص قبل ما تعلّق. النقطة: نفس النموذج، نفس السؤال، ردّين.' },
+  { num: '٣',  title: 'القاعدة',    part: 'rule',  note: 'اقرا الجملة بالحرف واسكت ثانيتين. دي الجملة اللي هيفتكرها بعد الفيديو.' },
+  { num: '٤',  title: 'التشريح',    part: 'rule',  note: 'وقّف على كل طبقة وهي بتركب — وقول مثال من شغلك انت على كل واحدة.' },
+  { num: '٥',  title: 'السبورة',    part: 'mind',  note: 'دوس B وزوّد بإيدك وانت بتشرح. ده اللي بيخلي الدرس حسّه متعلّم مش معروض.' },
+  { num: '٦',  title: 'قبل / بعد',  part: 'mind',  note: 'اقرا نسخة «قبل» بصوت باهت ونسخة «بعد» بصوت واثق — الفرق هيبان لوحده.' },
+  { num: '٧',  title: 'الغلطة',     part: 'mind',  note: 'الغلطة دي بتحصل من ٩ من كل ١٠ — طمّنه إنها طبيعية قبل ما تصلّحها.' },
+  { num: '٨',  title: 'اكتب معايا', part: 'close', note: 'سبورة فاضية: اكتب برومبت من شغلك انت قدامهم دلوقتي. B للسبورة، Z رجوع.' },
+  { num: '٩',  title: 'التمرين',    part: 'close', note: 'وقّف عند خانة «شكل الخروج» — دي أكتر خانة الناس بتسيبها فاضية.' },
+  { num: '١٠', title: 'الجاي',      part: 'close', note: 'اقفل على فعل واحد: اكتب برومبت واحد بالتلات طبقات النهاردة.' },
+];
+---
+
+<Deck
+  title="الطبقات التلاتة — الدرس ١ | ديك تجريبي | Syntax Academy"
+  description="ليه الـAI بيرد ردود عامة، وإزاي ٣ طبقات في البرومبت بتغيّر النتيجة من أول مرة."
+  deckName="ديك تجريبي"
+  deckSub="الدرس ١ · الطبقات التلاتة · Syntax Academy"
+  slides={slides}
+>
+
+  <!-- ═══ ١ — الاعتراض ═══ -->
+  <div class="slide active part-story" id="slide-1">
+    <div class="reveal era-tag">الدرس ١ · الأساس</div>
+    <div class="p-open">
+      <h1 class="reveal">«جرّبت الـAI وطلعلي كلام عام» — <em>المشكلة مش فيه.</em></h1>
+      <p class="reveal">هو مش بيقرا دماغك. بيشتغل على <strong>اللي بعتّهوله بس</strong> — ولو بعتّله سؤال ناقص، هيكمّله بالتخمين.</p>
+      <p class="reveal">في الدرس ده هتعرف <em>ليه</em> بيحصل ده، وتاخد قاعدة من ٣ طبقات تكرّرها على أي طلب.</p>
+    </div>
+    <div class="sf"><span>Syntax Academy</span><div class="pd"></div><span>تعال نشوف الفرق بعينك</span></div>
+  </div>
+
+  <!-- ═══ ٢ — نفس السؤال ═══ -->
+  <div class="slide part-story" id="slide-2">
+    <div class="reveal lbl">تجربة بسيطة</div>
+    <h2 class="reveal">نفس النموذج · نفس السؤال · <em>ردّين مختلفين تمامًا</em></h2>
+    <p class="reveal sub">الفرق الوحيد بين الاتنين: واحد اتبعت على عماه، والتاني اتبعت ومعاه <strong>سياق ومهمة وشكل خروج</strong>.</p>
+    <div class="stage"><div class="reveal"><SameQuestion /></div></div>
+    <div class="sf"><span>Syntax Academy</span><div class="pd"></div><span>طيب… إيه اللي اتغيّر بالظبط؟</span></div>
+  </div>
+
+  <!-- ═══ ٣ — القاعدة ═══ -->
+  <div class="slide part-rule" id="slide-3">
+    <div class="p-slab">
+      <div class="reveal kick">اكتب الجملة دي — الدرس كله ماشي عليها</div>
+      <div class="reveal rule">الـAI مش بيجاوب سؤالك.<br />بيجاوب <em>اللي فهمه من سؤالك</em>.</div>
+      <p class="reveal after">وكل حتة سايبها فاضية — <strong>هو هيملاها بالتخمين</strong>. فالشغلانة بتاعتك مش إنك تسأل أحسن… إنك <em>تسيب مساحة أقل للتخمين</em>.</p>
+    </div>
+    <div class="sf"><span>Syntax Academy</span><div class="pd"></div><span>وده بيتعمل بـ٣ طبقات ←</span></div>
+  </div>
+
+  <!-- ═══ ٤ — التشريح ═══ -->
+  <div class="slide part-rule" id="slide-4">
+    <div class="reveal lbl">تشريح أي برومبت</div>
+    <h2 class="reveal">أي طلب كويس بيتركّب من <em>٣ طبقات</em> — مش أكتر</h2>
+    <div class="stage"><div class="reveal"><PromptAnatomy /></div></div>
+    <div class="sf"><span>Syntax Academy</span><div class="pd"></div><span>تعال نرسمها على السبورة</span></div>
+  </div>
+
+  <!-- ═══ ٥ — السبورة ═══ -->
+  <div class="slide part-mind" id="slide-5">
+    <div class="reveal lbl">تعال نرسمها مع بعض</div>
+    <h2 class="reveal">التلات طبقات — و<em>ليه ترتيبهم كده</em></h2>
+    <div class="stage"><div class="reveal"><LayersBoard /></div></div>
+    <div class="sf"><span>Syntax Academy</span><div class="pd"></div><span>دوس B وزوّد عليها بإيدك</span></div>
+  </div>
+
+  <!-- ═══ ٦ — قبل / بعد ═══ -->
+  <div class="slide part-mind" id="slide-6">
+    <div class="reveal era-tag">مثال حقيقي · نفس الطلب</div>
+    <h2 class="reveal">شوف الفرق في <em>الكتابة نفسها</em></h2>
+    <div class="stage">
+      <div class="p-grid2">
+        <div class="p-card reveal">
+          <h4>❌ قبل</h4>
+          <p class="mono">اكتبلي بوست عن الفريلانس</p>
+          <p class="tiny">مفيش سياق · مفيش جمهور · مفيش شكل. الرد هيطلع صالح لأي حد — يعني لحد.</p>
+        </div>
+        <div class="p-card bordered reveal">
+          <h4>✅ بعد</h4>
+          <p class="mono">أنا مصمم جرافيك بشتغل فريلانس من سنتين وبكتب لجمهور مبتدئ على لينكدإن.<br />اكتبلي بوست يقنع مصمم لسه بادئ إنه يرفع سعره.<br />٥ أسطر · بلا مقدمات · يقفل بسؤال.</p>
+          <p class="tiny">سياق · مهمة · شكل خروج. تلاتتهم في ٣ سطور.</p>
+        </div>
+      </div>
+    </div>
+    <div class="sf"><span>Syntax Academy</span><div class="pd"></div><span>نفس الوقت تقريبًا — نتيجة مختلفة</span></div>
+  </div>
+
+  <!-- ═══ ٧ — الغلطة الشائعة ═══ -->
+  <div class="slide part-mind" id="slide-7">
+    <div class="p-slab">
+      <div class="reveal kick">الغلطة اللي بتحصل من ٩ من كل ١٠</div>
+      <div class="reveal rule">بيكتبوا <em>المهمة</em> بس.<br />وبينسوا السياق وشكل الخروج.</div>
+      <p class="reveal after">وده منطقي — المهمة هي اللي في دماغك. بس السياق هو اللي <strong>بيفرّق ردك عن رد أي حد تاني</strong>، وشكل الخروج هو اللي بيوفّر عليك تعيد وتزيد.</p>
+    </div>
+    <div class="sf"><span>Syntax Academy</span><div class="pd"></div><span>يلا نكتب واحد سوا ←</span></div>
+  </div>
+
+  <!-- ═══ ٨ — السبورة الفاضية ═══ -->
+  <div class="slide part-close" id="slide-8">
+    <div class="reveal lbl">على الهوا</div>
+    <h2 class="reveal">قولّي انت — <em>إيه الطلب اللي بتكرّره؟</em></h2>
+    <div class="stage">
+      <div class="reveal">
+        <SaboraBlank
+          title="برومبت من شغلي أنا"
+          hint="B = اكتب · 1-6 ألوان · Z رجوع · Shift+C مسح"
+          lines={[
+            ['السياق: أنا مين وبشتغل على إيه؟', 'مصمم فريلانس · جمهوري مبتدئين على لينكدإن'],
+            ['المهمة: عايزه يعمل إيه — فعل واحد؟', 'يكتب بوست يقنع مصمم يرفع سعره'],
+            ['شكل الخروج: يرجّعلي إيه بالظبط؟', '٥ أسطر · بلا مقدمة · يقفل بسؤال'],
+            ['إيه اللي سبته للتخمين؟', 'نبرة الكلام — هحددها'],
+          ]}
+        />
+      </div>
+    </div>
+    <div class="sf"><span>Syntax Academy</span><div class="pd"></div><span>سبورة فاضية — اكتب انت</span></div>
+  </div>
+
+  <!-- ═══ ٩ — التمرين ═══ -->
+  <div class="slide part-close" id="slide-9">
+    <div class="reveal era-tag">مهمة الدرس</div>
+    <h2 class="reveal">وقّف الفيديو، واكتب <em>برومبت واحد</em></h2>
+    <div class="stage">
+      <table class="p-tbl reveal">
+        <tr><th>الطبقة</th><th>اللي هكتبه</th></tr>
+        <tr><td>السياق — أنا مين، بشتغل على إيه، بكلّم مين</td><td>…</td></tr>
+        <tr><td>المهمة — فعل واحد واضح (اكتب / رتّب / حلّل)</td><td>…</td></tr>
+        <tr><td>شكل الخروج — جدول؟ نقط؟ عدد أسطر؟</td><td>…</td></tr>
+        <tr><td>اللي سبته للتخمين — وهل يستاهل تحدده؟</td><td>…</td></tr>
+      </table>
+      <p class="p-note reveal"><strong>اختبار قبل ما تبعت:</strong> غطّي السياق بإيدك واقرا الباقي. لو الطلب لسه ينفع يتبعت لأي حد تاني — يبقى سياقك لسه فاضي.</p>
+    </div>
+    <div class="sf"><span>Syntax Academy</span><div class="pd"></div><span>القالب في وصف الدرس</span></div>
+  </div>
+
+  <!-- ═══ ١٠ — الخطوة الجاية ═══ -->
+  <div class="slide part-close" id="slide-10">
+    <div class="p-cliff">
+      <div class="reveal icon">🧭</div>
+      <h2 class="reveal">لو كتبت <em>واحد بس</em> — انت خلّصت الدرس</h2>
+      <p class="reveal">عرفت إن الـAI بيجاوب اللي فهمه مش اللي قصدته، وإن أي طلب بيتركّب من ٣ طبقات.</p>
+      <p class="reveal q">في الدرس الجاي هناخد البرومبت ده ونخلّيه <em>قالب بتعيد استخدامه</em> — بدل ما تكتبه من الأول كل مرة.</p>
+      <p class="reveal foot">Syntax Academy — ديك تجريبي 🧡</p>
+    </div>
+    <div class="sf"><span>Syntax Academy</span><div class="pd"></div><span>الدرس ١ خلص · ١٠ / ١٠ 🎉</span></div>
+  </div>
+
+</Deck>

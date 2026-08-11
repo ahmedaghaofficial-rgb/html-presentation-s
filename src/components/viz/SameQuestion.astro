@@ -1,0 +1,90 @@
+---
+/** SameQuestion — نفس السؤال بيتفرّع لردّين: عام باهت · مظبوط ملوّن. بيرسم الفرق بدل ما يقوله. */
+---
+<div class="sq-wrap"><canvas id="sqViz"></canvas></div>
+<style>
+  .sq-wrap { position: relative; width: 100%; height: 300px; }
+  .sq-wrap canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+</style>
+<script>
+  import { fit, loop, CL, card, marker, arrow, cross, txt, pill, at, ease, pulse } from '@lib/viz';
+
+  const C = document.getElementById('sqViz') as HTMLCanvasElement | null;
+  if (C) {
+    const s = fit(C);
+    const CYCLE = 600;
+
+    loop((frame) => {
+      const { ctx, W, H } = s;
+      ctx.clearRect(0, 0, W, H);
+      const f = frame % CYCLE;
+
+      const cx = W / 2, top = 34;
+      const pQ = at(f, 0, 60);      // السؤال بيتكتب
+      const pSplit = at(f, 55, 130); // بيتفرّع
+      const pBad = at(f, 125, 240);  // الرد العام
+      const pGood = at(f, 215, 360); // الرد المظبوط
+      const pMark = at(f, 350, 420); // الحكم
+
+      // ── السؤال (واحد) ──
+      pill(ctx, 'نفس السؤال بالظبط', cx, top, { col: CL.chalk, size: 12, a: ease(pQ), glow: 0.6 });
+
+      // ── التفرّع ──
+      const yA = top + 26, yB = 108;
+      const xL = W * 0.26, xR = W * 0.74;
+      marker(ctx, [[cx, yA], [cx, yA + 20], [xR, yA + 20], [xR, yB]], pSplit, 'rgba(138,138,163,.75)', 2);
+      marker(ctx, [[cx, yA], [cx, yA + 20], [xL, yA + 20], [xL, yB]], pSplit, 'rgba(138,138,163,.75)', 2);
+
+      const bw = Math.min(230, W * 0.4), bh = 128;
+
+      // ── يمين: طلب مرسل على عماه ──
+      if (pBad > 0) {
+        const a = ease(pBad);
+        ctx.save(); ctx.globalAlpha = a;
+        card(ctx, xR - bw / 2, yB, bw, bh, { stroke: 'rgba(138,138,163,.4)', glow: 0 });
+        txt(ctx, 'من غير سياق', xR, yB + 24, { size: 12.5, col: CL.dim, weight: 800 });
+        // سطور باهتة = كلام عام
+        for (let i = 0; i < 4; i++) {
+          const li = at(pBad * 100, 20 + i * 14, 40 + i * 14);
+          ctx.globalAlpha = a * li * 0.5;
+          ctx.fillStyle = CL.mute;
+          const lw = (bw - 46) * (i === 3 ? 0.55 : 1);
+          ctx.fillRect(xR - bw / 2 + 23, yB + 48 + i * 16, lw, 6);
+        }
+        ctx.restore();
+        txt(ctx, 'رد عام ينفع لأي حد', xR, yB + bh + 20, { size: 12, col: CL.dim, weight: 700, a });
+        if (pMark > 0) cross(ctx, xR, yB + bh / 2 + 6, 22, CL.red, ease(pMark) * 0.9, 3.4);
+      }
+
+      // ── شمال: برومبت مبني ──
+      if (pGood > 0) {
+        const a = ease(pGood);
+        const glow = 0.5 + 0.5 * pulse(frame, 0.05);
+        ctx.save(); ctx.globalAlpha = a;
+        card(ctx, xL - bw / 2, yB, bw, bh, { stroke: CL.violet, glow: 0.8 * glow });
+        txt(ctx, 'بسياق + مهمة + شكل', xL, yB + 24, { size: 12.5, col: CL.violet, weight: 800 });
+        const cols = [CL.indigo, CL.violet, CL.pink, CL.cyan];
+        for (let i = 0; i < 4; i++) {
+          const li = at(pGood * 100, 18 + i * 15, 42 + i * 15);
+          ctx.globalAlpha = a * li;
+          ctx.fillStyle = cols[i];
+          const lw = (bw - 46) * (i === 3 ? 0.62 : 1) * li;
+          ctx.fillRect(xL - bw / 2 + 23, yB + 48 + i * 16, lw, 6);
+        }
+        ctx.restore();
+        txt(ctx, 'رد على مقاس حالتك', xL, yB + bh + 20, { size: 12, col: CL.chalk, weight: 800, a });
+        if (pMark > 0) {
+          const m = ease(pMark);
+          marker(ctx, [[xL - 13, yB + bh / 2 + 4], [xL - 3, yB + bh / 2 + 15], [xL + 15, yB + bh / 2 - 10]], m, CL.green, 4);
+        }
+      }
+
+      // ── الخلاصة ──
+      const pEnd = at(f, 420, 480);
+      if (pEnd > 0) {
+        txt(ctx, 'الفرق مش في الـAI — الفرق في اللي بعتّه', cx, H - 14,
+            { size: 13.5, col: CL.pink, weight: 900, a: ease(pEnd) });
+      }
+    });
+  }
+</script>

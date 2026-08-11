@@ -1,0 +1,227 @@
+---
+/**
+ * SaboraStep (السبورة) — القاعدة مرسومة بالماركر على سبورة:
+ * سلّم بيتُرسم درجة درجة، المشتري على درجة، انت على اللي بعدها، والخبير فوق بعيد.
+ * قوس أخضر بينك وبين المشتري = «الفرق ده كفاية»، وخط أحمر مشطوب ناحية الخبير = «المقارنة الغلط».
+ * بتلف على CYCLE طويل فهي حيّة في أي لحظة تصوير.
+ */
+---
+<div class="sbs-wrap"><canvas id="saboraStep"></canvas></div>
+<style>
+  .sbs-wrap { position: relative; width: 100%; height: 360px; }
+  .sbs-wrap canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+</style>
+<script>
+  const C = document.getElementById('saboraStep') as HTMLCanvasElement | null;
+  if (C) {
+    const ctx = C.getContext('2d')!;
+    const DPR = Math.min(window.devicePixelRatio || 1, 2);
+    let W = 0, H = 0;
+    function resize() {
+      const p = C!.parentElement!;
+      W = p.clientWidth; H = p.clientHeight;
+      C!.width = W * DPR; C!.height = H * DPR;
+      ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+    }
+    resize();
+    new ResizeObserver(resize).observe(C.parentElement!);
+
+    const PINK = '#ec4899', VIOLET = '#a855f7', INDIGO = '#6366f1', CY = '#67e8f9',
+          GREEN = '#34d399', RED = '#f87171', AMBER = '#fbbf24', CHALK = '#eef0ff';
+    const CYCLE = 620;
+    let frame = 0;
+
+    function rr(x: number, y: number, w: number, h: number, r: number) {
+      ctx.beginPath();
+      ctx.moveTo(x + r, y);
+      ctx.arcTo(x + w, y, x + w, y + h, r);
+      ctx.arcTo(x + w, y + h, x, y + h, r);
+      ctx.arcTo(x, y + h, x, y, r);
+      ctx.arcTo(x, y, x + w, y, r);
+      ctx.closePath();
+    }
+    /** draw a points array as a marker stroke up to fraction prog (0..1) */
+    function markerPath(pts: [number, number][], prog: number, col: string, lw: number) {
+      if (prog <= 0 || pts.length < 2) return;
+      let total = 0; const seg: number[] = [];
+      for (let i = 1; i < pts.length; i++) {
+        const d = Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]);
+        seg.push(d); total += d;
+      }
+      const target = total * prog;
+      ctx.save();
+      ctx.strokeStyle = col; ctx.lineWidth = lw; ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+      ctx.shadowColor = col; ctx.shadowBlur = 6;
+      ctx.beginPath(); ctx.moveTo(pts[0][0], pts[0][1]);
+      let acc = 0;
+      for (let i = 1; i < pts.length; i++) {
+        const d = seg[i - 1];
+        if (acc + d <= target) { ctx.lineTo(pts[i][0], pts[i][1]); acc += d; }
+        else {
+          const rem = (target - acc) / d;
+          ctx.lineTo(pts[i - 1][0] + (pts[i][0] - pts[i - 1][0]) * rem,
+                     pts[i - 1][1] + (pts[i][1] - pts[i - 1][1]) * rem);
+          break;
+        }
+      }
+      ctx.stroke(); ctx.restore();
+    }
+    function markerFig(x: number, y: number, s: number, col: string, a: number) {
+      if (a <= 0) return;
+      ctx.save(); ctx.globalAlpha = Math.min(1, a);
+      ctx.strokeStyle = col; ctx.lineWidth = 2.3 * s; ctx.lineCap = 'round';
+      ctx.shadowColor = col; ctx.shadowBlur = 7;
+      ctx.beginPath(); ctx.arc(x, y - 21 * s, 5.8 * s, 0, Math.PI * 2); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(x, y - 15 * s); ctx.lineTo(x, y - 5.5 * s); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(x - 6.5 * s, y - 11.5 * s); ctx.lineTo(x + 6.5 * s, y - 11.5 * s); ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(x, y - 5.5 * s); ctx.lineTo(x - 5 * s, y);
+      ctx.moveTo(x, y - 5.5 * s); ctx.lineTo(x + 5 * s, y);
+      ctx.stroke(); ctx.restore();
+    }
+    const at = (f: number, a: number, b: number) => Math.min(1, Math.max(0, (f - a) / (b - a)));
+
+    function draw() {
+      frame++;
+      const f = Math.min(frame, CYCLE);   // تتشغّل مرة واحدة وتثبت — مش لوب
+      ctx.clearRect(0, 0, W, H);
+
+      // ── board surface ──
+      const bx = 6, by = 6, bw = W - 12, bh = H - 12;
+      rr(bx, by, bw, bh, 16);
+      ctx.fillStyle = '#0a0a13'; ctx.fill();
+      ctx.save(); rr(bx, by, bw, bh, 16); ctx.clip();
+      ctx.fillStyle = 'rgba(168,85,247,0.06)';
+      for (let gx = bx + 22; gx < bx + bw; gx += 26)
+        for (let gy = by + 22; gy < by + bh; gy += 26) { ctx.beginPath(); ctx.arc(gx, gy, 1, 0, Math.PI * 2); ctx.fill(); }
+      ctx.restore();
+      const fg = ctx.createLinearGradient(bx, by, bx + bw, by + bh);
+      fg.addColorStop(0, INDIGO); fg.addColorStop(0.5, VIOLET); fg.addColorStop(1, PINK);
+      ctx.save();
+      ctx.strokeStyle = fg; ctx.lineWidth = 2; ctx.shadowColor = VIOLET; ctx.shadowBlur = 12;
+      rr(bx, by, bw, bh, 16); ctx.stroke(); ctx.restore();
+
+      // ── title ──
+      ctx.save();
+      ctx.textAlign = 'right'; ctx.textBaseline = 'middle'; ctx.fillStyle = CHALK;
+      ctx.font = '800 17px Lemonada, Cairo, sans-serif';
+      ctx.fillText('على السبورة: سلّم الخطوة الواحدة 🪜', bx + bw - 22, by + 30);
+      ctx.restore();
+
+      // ── geometry ──
+      const gy = H * 0.80;
+      const sh = (H * 0.46) / 5;
+      const sw = (W * 0.60) / 5;
+      const x0 = W * 0.15;
+
+      const stair: [number, number][] = [[x0, gy]];
+      for (let i = 0; i < 5; i++) {
+        stair.push([x0 + i * sw, gy - (i + 1) * sh]);
+        stair.push([x0 + (i + 1) * sw, gy - (i + 1) * sh]);
+      }
+      const ground: [number, number][] = [[bx + 24, gy], [bx + bw - 24, gy]];
+
+      const pGround = at(f, 0, 45);
+      const pStair = at(f, 35, 220);
+      markerPath(ground, pGround, 'rgba(238,240,255,0.35)', 1.8);
+      markerPath(stair, pStair, CY, 2.5);
+
+      // ── figures ──
+      const buyerX = x0 + 1 * sw + sw / 2, buyerY = gy - 2 * sh;
+      const meX = x0 + 2 * sw + sw / 2, meY = gy - 3 * sh;
+      const expX = x0 + 4 * sw + sw / 2, expY = gy - 5 * sh;
+
+      markerFig(buyerX, buyerY, 1, AMBER, at(f, 220, 250));
+      markerFig(meX, meY, 1.12, VIOLET, at(f, 245, 275));
+      markerFig(expX, expY, 0.9, '#5c5c72', at(f, 270, 300) * 0.8);
+
+      // ── labels write in ──
+      ctx.save(); ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      const l1 = at(f, 250, 278);
+      if (l1 > 0) {
+        ctx.globalAlpha = l1; ctx.fillStyle = AMBER;
+        ctx.font = '900 14px Lemonada, Cairo, sans-serif';
+        ctx.fillText('المشتري', buyerX, buyerY + 22);
+      }
+      const l2 = at(f, 275, 303);
+      if (l2 > 0) {
+        ctx.globalAlpha = l2; ctx.fillStyle = VIOLET;
+        ctx.font = '900 16px Lemonada, Cairo, sans-serif';
+        ctx.fillText('انت', meX, meY + 24);
+      }
+      const l3 = at(f, 300, 328);
+      if (l3 > 0) {
+        ctx.globalAlpha = l3 * 0.8; ctx.fillStyle = '#6b6b85';
+        ctx.font = '800 13px Lemonada, Cairo, sans-serif';
+        ctx.fillText('الخبير', expX, expY - 40);
+      }
+      ctx.restore();
+
+      // ── the good arc: me → buyer ──
+      const pGood = at(f, 330, 400);
+      if (pGood > 0) {
+        const ax = meX - 20, ay = meY - 34, bxx = buyerX + 20, byy = buyerY - 34;
+        const arc: [number, number][] = [];
+        for (let i = 0; i <= 24; i++) {
+          const t = i / 24;
+          const mx = (ax + bxx) / 2, my = ay - 30;
+          arc.push([
+            (1 - t) * (1 - t) * ax + 2 * (1 - t) * t * mx + t * t * bxx,
+            (1 - t) * (1 - t) * ay + 2 * (1 - t) * t * my + t * t * byy,
+          ]);
+        }
+        markerPath(arc, pGood, GREEN, 2.4);
+        if (pGood > 0.85) {
+          ctx.save(); ctx.globalAlpha = (pGood - 0.85) / 0.15;
+          ctx.strokeStyle = GREEN; ctx.lineWidth = 2.2; ctx.lineCap = 'round';
+          ctx.shadowColor = GREEN; ctx.shadowBlur = 8;
+          ctx.beginPath();
+          ctx.moveTo(bxx + 10, byy - 7); ctx.lineTo(bxx, byy); ctx.lineTo(bxx + 9, byy + 8);
+          ctx.stroke();
+          ctx.font = '900 14px Lemonada, Cairo, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+          ctx.fillStyle = GREEN; ctx.fillText('الفرق ده كفاية ✅', (ax + bxx) / 2, ay - 48);
+          ctx.restore();
+        }
+      }
+
+      // ── the wrong comparison: me → expert, dashed + X ──
+      const pBad = at(f, 410, 480);
+      if (pBad > 0) {
+        ctx.save(); ctx.globalAlpha = pBad * 0.9;
+        ctx.strokeStyle = RED; ctx.lineWidth = 1.9; ctx.setLineDash([8, 6]); ctx.lineCap = 'round';
+        ctx.shadowColor = RED; ctx.shadowBlur = 5;
+        ctx.beginPath();
+        ctx.moveTo(meX + 20, meY - 40);
+        const cxm = (meX + expX) / 2;
+        ctx.quadraticCurveTo(cxm, meY - 104, expX - 18, expY - 20);
+        ctx.stroke(); ctx.setLineDash([]);
+        if (pBad > 0.7) {
+          const a2 = (pBad - 0.7) / 0.3;
+          ctx.globalAlpha = a2;
+          const mx = cxm, my = meY - 80;
+          ctx.lineWidth = 3; ctx.beginPath();
+          ctx.moveTo(mx - 9, my - 9); ctx.lineTo(mx + 9, my + 9);
+          ctx.moveTo(mx + 9, my - 9); ctx.lineTo(mx - 9, my + 9);
+          ctx.stroke();
+          ctx.shadowBlur = 0;
+          ctx.font = '800 12.5px Lemonada, Cairo, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+          ctx.fillStyle = RED; ctx.fillText('المقارنة الغلط', mx, my - 22);
+        }
+        ctx.restore();
+      }
+
+      // ── bottom caption ──
+      const pCap = at(f, 490, 545);
+      if (pCap > 0) {
+        ctx.save(); ctx.globalAlpha = pCap;
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.font = '800 13px Cairo, sans-serif'; ctx.fillStyle = 'rgba(200,190,255,0.8)';
+        ctx.fillText('مش محتاج تكون الأقصى — محتاج تكون قدّام حد بخطوة', W * 0.5, by + bh - 16);
+        ctx.restore();
+      }
+
+      requestAnimationFrame(draw);
+    }
+    draw();
+  }
+</script>

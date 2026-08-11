@@ -1,0 +1,232 @@
+---
+/**
+ * Deck — الهيكل المشترك لأي درس. الصفحة بتبقى frontmatter + سلايدات وبس.
+ *
+ * <Deck title="…" deckName="…" deckSub="…" slides={slides}>
+ *   <div class="slide active part-x" id="slide-1"> … </div>
+ * </Deck>
+ *
+ * بيجيب معاه: الخطوط · brand bar · الـ 16:9 stage · AmbientBg · progress · counter ·
+ * أزرار التنقل · السبورة الحيّة · تايلز الفصول · سكربت التنقل · وضع التصوير (F) · نوتس (N).
+ */
+import '@styles/global.css';
+import AmbientBg from '@components/AmbientBg.astro';
+import BrandLogo from '@components/BrandLogo.astro';
+import LiveBoard from '@components/LiveBoard.astro';
+import { LESSONS, neighbours } from '@data/lessons';
+
+export interface DeckSlide { num: string; title: string; part: string; note?: string }
+interface Props {
+  title: string;
+  description?: string;
+  deckName: string;
+  deckSub: string;
+  slides: DeckSlide[];
+}
+const { title, description = '', deckName, deckSub, slides } = Astro.props;
+const total = slides.length;
+const { prev: prevLesson, next: nextLesson, current: thisLesson } = neighbours(Astro.url.pathname);
+---
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title}</title>
+    {description && <meta name="description" content={description} />}
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=Lemonada:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  </head>
+  <body>
+    <div class="brand-bar">
+      <div class="brand-left">
+        <BrandLogo size={34} />
+        <div>
+          <div class="brand-name">{deckName}</div>
+          <div class="brand-sub">{deckSub}</div>
+        </div>
+      </div>
+      <div class="brand-right">
+        <span class="keys">B سبورة · V تعتيم · N نوتس · F تصوير · L الدروس</span>
+        <span><span class="live-dot"></span>LIVE</span>
+      </div>
+    </div>
+
+    <div class="vp" id="viewport">
+      <AmbientBg />
+      <div class="vp-progress"><span id="vpProgressFill"></span></div>
+      <div class="slide-counter" id="slideCounter">{slides[0].num} / {slides[total - 1].num}</div>
+      <button class="nav-btn nav-prev" id="navPrev" aria-label="السلايد السابقة">&#8594;</button>
+      <button class="nav-btn nav-next" id="navNext" aria-label="السلايد التالية">&#8592;</button>
+
+      <slot />
+
+      <LiveBoard />
+    </div>
+
+    <div class="notes" id="deckNotes" hidden>
+      <span class="notes-lbl">نوتس التصوير</span>
+      <p id="deckNoteText"></p>
+    </div>
+
+    <nav class="slide-nav" style={`grid-template-columns: repeat(${total}, 1fr)`} aria-label="Slide navigator">
+      {slides.map((s, i) => (
+        <button class={`nav-tile tile-${s.part}`} data-go-slide={i + 1} data-note={s.note ?? ''}>
+          <span class="nav-tile-num">{s.num}</span>
+          <span class="nav-tile-title">{s.title}</span>
+        </button>
+      ))}
+    </nav>
+
+    <!-- تنقّل بين الدروس — تحت يمين، وبيختفي في وضع التصوير (F) -->
+    <div class="lesson-bar">
+      {prevLesson
+        ? <a class="lb-nav" href={prevLesson.href} title={`الدرس ${prevLesson.n}: ${prevLesson.t}`}><span class="ar">&#8594;</span> الدرس {prevLesson.n}</a>
+        : <span class="lb-nav off"><span class="ar">&#8594;</span> السابق</span>}
+      <button class="lb-all" id="lessonsBtn">☰ كل الدروس</button>
+      {nextLesson
+        ? <a class="lb-nav" href={nextLesson.href} title={`الدرس ${nextLesson.n}: ${nextLesson.t}`}>الدرس {nextLesson.n} <span class="ar">&#8592;</span></a>
+        : <span class="lb-nav off">التالي <span class="ar">&#8592;</span></span>}
+    </div>
+
+    <div class="lesson-sheet" id="lessonSheet" hidden>
+      <div class="ls-panel">
+        <div class="ls-head">
+          <span>دروس الكورس</span>
+          <button class="ls-x" id="lessonsClose" aria-label="إغلاق">✕</button>
+        </div>
+        <div class="ls-list">
+          {LESSONS.map((l) => (
+            l.href
+              ? <a class={`ls-row${thisLesson && l.href === thisLesson.href ? ' on' : ''}`} href={l.href}>
+                  <span class="ls-n">{l.n}</span>
+                  <span class="ls-t">{l.t}</span>
+                  <span class="ls-m">{l.m}</span>
+                </a>
+              : <span class="ls-row soon">
+                  <span class="ls-n">{l.n}</span>
+                  <span class="ls-t">{l.t}</span>
+                  <span class="ls-m">لسه</span>
+                </span>
+          ))}
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const arabicNum = (n: number) => String(n).replace(/[0-9]/g, (d) => '٠١٢٣٤٥٦٧٨٩'[Number(d)]);
+      const slides = Array.from(document.querySelectorAll<HTMLElement>('.slide'));
+      const counter = document.getElementById('slideCounter')!;
+      const prevBtn = document.getElementById('navPrev') as HTMLButtonElement;
+      const nextBtn = document.getElementById('navNext') as HTMLButtonElement;
+      const navTiles = Array.from(document.querySelectorAll<HTMLButtonElement>('.nav-tile'));
+      const notesBox = document.getElementById('deckNotes')!;
+      const noteText = document.getElementById('deckNoteText')!;
+      const navTotal = navTiles.length;
+      let current = 1;
+      let notesOn = false;
+
+      /* لو الصفحة اتعملها reload وانت بتصوّر (HMR في الـdev مثلًا)، ترجع لنفس
+         السلايد مش لأول واحدة. المفتاح لكل درس لوحده. */
+      const SKEY = 'deck:' + location.pathname;
+      const remember = (n: number) => { try { sessionStorage.setItem(SKEY, String(n)); } catch { /* ignore */ } };
+      const restore = () => {
+        try {
+          const n = Number(sessionStorage.getItem(SKEY));
+          return n >= 1 && n <= navTotal ? n : 1;
+        } catch { return 1; }
+      };
+
+      // footer progress dots — one per slide, clickable
+      slides.forEach((slide) => {
+        const pd = slide.querySelector<HTMLElement>('.pd');
+        if (!pd) return;
+        for (let j = 0; j < navTotal; j++) {
+          const dot = document.createElement('span');
+          dot.className = 'dot';
+          if (j + 1 === current) dot.classList.add('on');
+          dot.addEventListener('click', () => go(j + 1));
+          pd.appendChild(dot);
+        }
+      });
+
+      navTiles.forEach((tile) => {
+        tile.addEventListener('click', () => {
+          const target = Number(tile.dataset.goSlide);
+          if (!isNaN(target)) go(target);
+        });
+      });
+
+      function go(target: number) {
+        if (target < 1 || target > navTotal || target === current) return;
+        const prev = slides.find((s) => s.id === `slide-${current}`);
+        const next = slides.find((s) => s.id === `slide-${target}`);
+        if (prev) {
+          prev.classList.remove('active');
+          prev.classList.add('exit');
+          setTimeout(() => prev.classList.remove('exit'), 450);
+        }
+        if (next) next.classList.add('active');
+        current = target;
+        update();
+      }
+      const step = (d: number) => go(current + d);
+
+      function update() {
+        counter.textContent = `${arabicNum(current)} / ${arabicNum(navTotal)}`;
+        prevBtn.disabled = current === 1;
+        nextBtn.disabled = current === navTotal;
+        document.querySelectorAll<HTMLElement>('.sf .pd').forEach((box) => {
+          box.querySelectorAll<HTMLElement>('.dot').forEach((d, i) => d.classList.toggle('on', i + 1 === current));
+        });
+        navTiles.forEach((tile, i) => tile.classList.toggle('on', i + 1 === current));
+        const fill = document.getElementById('vpProgressFill');
+        if (fill) fill.style.width = `${(current / navTotal) * 100}%`;
+        navTiles[current - 1]?.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' });
+        noteText.textContent = navTiles[current - 1]?.dataset.note || '—';
+        remember(current);
+        // السبورة الحيّة بتخزّن الرسم لكل سلايد لوحده
+        document.dispatchEvent(new CustomEvent('deck:slide', { detail: current }));
+      }
+
+      function setNotes(on: boolean) {
+        notesOn = on;
+        notesBox.hidden = !on;
+      }
+      function setFilm(on: boolean) {
+        document.body.classList.toggle('film', on);
+      }
+
+      // شيت كل الدروس
+      const sheet = document.getElementById('lessonSheet')!;
+      const openSheet = (on: boolean) => { sheet.hidden = !on; };
+      document.getElementById('lessonsBtn')?.addEventListener('click', () => openSheet(sheet.hidden));
+      document.getElementById('lessonsClose')?.addEventListener('click', () => openSheet(false));
+      sheet.addEventListener('click', (e) => { if (e.target === sheet) openSheet(false); });
+
+      prevBtn.addEventListener('click', () => step(-1));
+      nextBtn.addEventListener('click', () => step(1));
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowLeft' || e.key === 'PageDown') step(1);         // عربي: الشمال = التالي
+        else if (e.key === 'ArrowRight' || e.key === 'PageUp') step(-1);
+        else if (e.key === 'Home') go(1);
+        else if (e.key === 'End') go(navTotal);
+        else if (e.key.toLowerCase() === 'n') setNotes(!notesOn);
+        else if (e.key.toLowerCase() === 'f') setFilm(!document.body.classList.contains('film'));
+        else if (e.key.toLowerCase() === 'l') openSheet(sheet.hidden);
+        else if (e.key === 'Escape' && !sheet.hidden) openSheet(false);
+      });
+
+      // ابدأ من آخر سلايد كنت عليها (لو الصفحة اتعملها reload)
+      const saved = restore();
+      if (saved !== 1) {
+        slides.find((s) => s.id === 'slide-1')?.classList.remove('active');
+        slides.find((s) => s.id === `slide-${saved}`)?.classList.add('active');
+        current = saved;
+      }
+      update();
+    </script>
+  </body>
+</html>

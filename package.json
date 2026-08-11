@@ -1,0 +1,16 @@
+{
+  "name": "syntax-deck-demo",
+  "type": "module",
+  "version": "0.1.0",
+  "description": "Syntax Academy — ديك تجريبي لاختبار سكِل البريزنتيشن (Arabic, RTL)",
+  "scripts": {
+    "dev": "astro dev --host --port 4340",
+    "start": "astro dev --host --port 4340",
+    "build": "astro build",
+    "preview": "astro preview --port 4340",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "astro": "^5.1.1"
+  }
+}

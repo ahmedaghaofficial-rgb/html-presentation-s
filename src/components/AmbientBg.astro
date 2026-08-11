@@ -1,0 +1,89 @@
+---
+/**
+ * AmbientBg — the syntax.academy identity background.
+ *
+ * Deep near-black base with slow-drifting aurora blobs in the Syntax tri-color
+ * (indigo #6366f1 · violet #a855f7 · pink #ec4899), a faint particle field, and
+ * a soft vignette. Same feel as the live site. Subtle — never competes with
+ * on-slide content.
+ */
+---
+<canvas class="vp-bg" id="ambientBg"></canvas>
+<script>
+  const C = document.getElementById('ambientBg') as HTMLCanvasElement | null;
+  if (C) {
+    const ctx = C.getContext('2d')!;
+    const DPR = Math.min(window.devicePixelRatio || 1, 2);
+    let W = 0, H = 0, t = 0;
+    function resize() {
+      const p = C!.parentElement!;
+      W = p.clientWidth; H = p.clientHeight;
+      C!.width = W * DPR; C!.height = H * DPR;
+      ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+    }
+    resize();
+    new ResizeObserver(resize).observe(C.parentElement!);
+
+    // aurora blobs — the Syntax tri-color
+    type Blob = { hue: [number, number, number]; x: number; y: number; r: number; ph: number; sp: number; ax: number; ay: number };
+    const INDIGO: [number, number, number] = [99, 102, 241];
+    const VIOLET: [number, number, number] = [168, 85, 247];
+    const PINK: [number, number, number] = [236, 72, 153];
+    const blobs: Blob[] = [
+      { hue: VIOLET, x: 0.28, y: 0.32, r: 0.42, ph: 0.0, sp: 0.00022, ax: 0.06, ay: 0.05 },
+      { hue: INDIGO, x: 0.72, y: 0.40, r: 0.46, ph: 1.7, sp: 0.00018, ax: 0.07, ay: 0.04 },
+      { hue: PINK,   x: 0.55, y: 0.74, r: 0.36, ph: 3.1, sp: 0.00025, ax: 0.05, ay: 0.06 },
+      { hue: INDIGO, x: 0.14, y: 0.78, r: 0.30, ph: 4.4, sp: 0.00020, ax: 0.06, ay: 0.05 },
+    ];
+
+    // fine particle field
+    type P = { x: number; y: number; r: number; a: number; sp: number; ph: number };
+    const parts: P[] = Array.from({ length: 46 }, () => ({
+      x: Math.random(), y: Math.random(), r: 0.4 + Math.random() * 1.5,
+      a: 0.05 + Math.random() * 0.18, sp: 0.0002 + Math.random() * 0.0006, ph: Math.random() * Math.PI * 2,
+    }));
+
+    function frame() {
+      t += 16;
+      // base fill
+      ctx.fillStyle = '#07070d';
+      ctx.fillRect(0, 0, W, H);
+
+      // aurora — additive soft radial blobs
+      ctx.globalCompositeOperation = 'lighter';
+      blobs.forEach((b) => {
+        const cx = (b.x + Math.sin(t * b.sp + b.ph) * b.ax) * W;
+        const cy = (b.y + Math.cos(t * b.sp * 1.1 + b.ph) * b.ay) * H;
+        const rad = b.r * Math.max(W, H);
+        const breath = 0.85 + 0.15 * Math.sin(t * 0.0008 + b.ph);
+        const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, rad * breath);
+        const [r, gr, bl] = b.hue;
+        g.addColorStop(0, `rgba(${r},${gr},${bl},0.13)`);
+        g.addColorStop(0.45, `rgba(${r},${gr},${bl},0.05)`);
+        g.addColorStop(1, 'rgba(0,0,0,0)');
+        ctx.fillStyle = g;
+        ctx.beginPath(); ctx.arc(cx, cy, rad * breath, 0, Math.PI * 2); ctx.fill();
+      });
+      ctx.globalCompositeOperation = 'source-over';
+
+      // particles
+      parts.forEach((p) => {
+        const px = p.x * W;
+        const py = (p.y + Math.sin(t * p.sp + p.ph) * 0.02) * H;
+        const tw = 0.6 + 0.4 * Math.sin(t * 0.0012 + p.ph);
+        ctx.fillStyle = `rgba(200,190,255,${p.a * tw})`;
+        ctx.beginPath(); ctx.arc(px, py, p.r, 0, Math.PI * 2); ctx.fill();
+      });
+
+      // vignette
+      const vg = ctx.createRadialGradient(W * 0.5, H * 0.45, Math.min(W, H) * 0.35, W * 0.5, H * 0.5, Math.max(W, H) * 0.75);
+      vg.addColorStop(0, 'rgba(7,7,13,0)');
+      vg.addColorStop(1, 'rgba(5,5,9,0.7)');
+      ctx.fillStyle = vg;
+      ctx.fillRect(0, 0, W, H);
+
+      requestAnimationFrame(frame);
+    }
+    frame();
+  }
+</script>

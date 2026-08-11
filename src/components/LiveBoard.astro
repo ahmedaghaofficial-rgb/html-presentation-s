@@ -1,0 +1,325 @@
+---
+/**
+ * LiveBoard (السبورة الحيّة) — a drawable annotation layer over the WHOLE deck.
+ *
+ * Mostafa can scribble/write freely on any slide while recording:
+ *  • strokes are stored PER SLIDE (normalized 0..1) so they survive navigation + resize
+ *  • marker feel: smoothed quadratic path, round caps, soft glow
+ *  • veil mode dims the slide behind so the board reads like a real whiteboard
+ *  • the toolbar hides (H) so it never appears in the recording
+ *
+ * Keyboard:  B draw on/off · V veil · H hide toolbar · E eraser · 1..6 colors
+ *            [ ] size · Z undo · Shift+C clear slide · Esc exit
+ *
+ * Needs the deck's nav script to dispatch:  document.dispatchEvent(new CustomEvent('deck:slide',{detail:n}))
+ */
+---
+<div class="lb-veil" id="lbVeil"></div>
+<canvas class="lb-canvas" id="lbCanvas"></canvas>
+
+<div class="lb-bar" id="lbBar">
+  <button class="lb-btn lb-pen" id="lbPen" title="السبورة (B)"><span>✏️</span></button>
+  <span class="lb-sep"></span>
+  <div class="lb-colors" id="lbColors">
+    <button class="lb-sw on" data-col="#eef0ff" style="--sw:#eef0ff" title="طباشير (1)"></button>
+    <button class="lb-sw" data-col="#ec4899" style="--sw:#ec4899" title="بمبي (2)"></button>
+    <button class="lb-sw" data-col="#a855f7" style="--sw:#a855f7" title="بنفسجي (3)"></button>
+    <button class="lb-sw" data-col="#67e8f9" style="--sw:#67e8f9" title="سماوي (4)"></button>
+    <button class="lb-sw" data-col="#fbbf24" style="--sw:#fbbf24" title="أصفر (5)"></button>
+    <button class="lb-sw" data-col="#34d399" style="--sw:#34d399" title="أخضر (6)"></button>
+  </div>
+  <span class="lb-sep"></span>
+  <div class="lb-sizes" id="lbSizes">
+    <button class="lb-sz" data-w="2.4" title="رقيع (])"><i style="height:2px"></i></button>
+    <button class="lb-sz on" data-w="4" title="متوسط"><i style="height:4px"></i></button>
+    <button class="lb-sz" data-w="7" title="عريض ([)"><i style="height:7px"></i></button>
+  </div>
+  <span class="lb-sep"></span>
+  <button class="lb-btn" id="lbErase" title="أستيكة (E)"><span>🧽</span></button>
+  <button class="lb-btn" id="lbUndo" title="رجوع (Z)"><span>↶</span></button>
+  <button class="lb-btn" id="lbClear" title="مسح السلايد (Shift+C)"><span>🗑</span></button>
+  <button class="lb-btn" id="lbVeilBtn" title="تعتيم الخلفية (V)"><span>◐</span></button>
+  <button class="lb-btn lb-hide" id="lbHide" title="إخفاء الشريط (H)"><span>✕</span></button>
+</div>
+
+<button class="lb-ghost" id="lbGhost" title="إظهار شريط السبورة (H)">✏️</button>
+
+<style>
+  .lb-veil {
+    position: absolute; inset: 0; z-index: 18;
+    background: rgba(4, 4, 9, 0.62);
+    backdrop-filter: blur(1.5px);
+    opacity: 0; pointer-events: none;
+    transition: opacity .3s ease;
+  }
+  .lb-veil.on { opacity: 1; }
+
+  .lb-canvas {
+    position: absolute; inset: 0; width: 100%; height: 100%;
+    z-index: 19; display: block;
+    pointer-events: none; touch-action: none;
+  }
+  .lb-canvas.draw { pointer-events: auto; cursor: crosshair; }
+
+  /* the viewport gets a glow while drawing is armed */
+  .vp.board-on { box-shadow: 0 0 0 2px rgba(168,85,247,.55), 0 0 34px rgba(168,85,247,.28), 0 32px 70px rgba(0,0,0,.8); }
+
+  .lb-bar {
+    position: absolute; top: 11px; left: 11px; z-index: 30;
+    display: flex; align-items: center; gap: 5px;
+    padding: 5px 7px;
+    background: rgba(12, 12, 20, 0.92);
+    border: 1px solid rgba(255,255,255,0.10);
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0,0,0,.55);
+    backdrop-filter: blur(8px);
+    transition: opacity .25s ease, transform .25s ease;
+    user-select: none;
+  }
+  .lb-bar.hidden { opacity: 0; transform: translateY(-8px); pointer-events: none; }
+
+  .lb-btn {
+    width: 27px; height: 27px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(255,255,255,0.045);
+    border: 1px solid transparent;
+    font-size: 13px; line-height: 1; transition: all .18s;
+  }
+  .lb-btn:hover { background: rgba(168,85,247,.18); border-color: rgba(168,85,247,.4); }
+  .lb-btn.on { background: rgba(168,85,247,.28); border-color: rgba(168,85,247,.7); box-shadow: 0 0 12px rgba(168,85,247,.35); }
+  .lb-btn.lb-hide { font-size: 11px; opacity: .5; }
+  .lb-btn.lb-hide:hover { opacity: 1; }
+
+  .lb-sep { width: 1px; height: 18px; background: rgba(255,255,255,0.10); margin: 0 2px; }
+
+  .lb-colors { display: flex; gap: 4px; }
+  .lb-sw {
+    width: 17px; height: 17px; border-radius: 50%;
+    background: var(--sw);
+    border: 2px solid transparent;
+    box-shadow: 0 0 0 1px rgba(0,0,0,.5);
+    transition: all .16s;
+  }
+  .lb-sw:hover { transform: scale(1.18); }
+  .lb-sw.on { border-color: #fff; transform: scale(1.14); box-shadow: 0 0 10px var(--sw); }
+
+  .lb-sizes { display: flex; gap: 3px; align-items: center; }
+  .lb-sz {
+    width: 22px; height: 22px; border-radius: 7px;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(255,255,255,0.045); border: 1px solid transparent; transition: all .16s;
+  }
+  .lb-sz i { display: block; width: 13px; background: #cfcfe4; border-radius: 4px; }
+  .lb-sz:hover { background: rgba(168,85,247,.16); }
+  .lb-sz.on { background: rgba(168,85,247,.26); border-color: rgba(168,85,247,.65); }
+  .lb-sz.on i { background: #fff; }
+
+  .lb-ghost {
+    position: absolute; top: 11px; left: 11px; z-index: 29;
+    width: 26px; height: 26px; border-radius: 8px;
+    background: rgba(12,12,20,.55); border: 1px solid rgba(255,255,255,.08);
+    font-size: 12px; opacity: 0; pointer-events: none; transition: opacity .25s;
+  }
+  .lb-ghost.on { opacity: .28; pointer-events: auto; }
+  .lb-ghost.on:hover { opacity: 1; }
+</style>
+
+<script>
+  type Stroke = { col: string; w: number; erase: boolean; pts: [number, number][] };
+
+  const C = document.getElementById('lbCanvas') as HTMLCanvasElement | null;
+  const bar = document.getElementById('lbBar');
+  const veil = document.getElementById('lbVeil');
+  const ghost = document.getElementById('lbGhost');
+  const penBtn = document.getElementById('lbPen');
+  const eraseBtn = document.getElementById('lbErase');
+  const veilBtn = document.getElementById('lbVeilBtn');
+  const vp = document.getElementById('viewport');
+
+  if (C && bar && veil && ghost && penBtn && eraseBtn && veilBtn) {
+    const ctx = C.getContext('2d')!;
+    const DPR = Math.min(window.devicePixelRatio || 1, 2);
+    let W = 0, H = 0;
+
+    /* ── state ── */
+    const store = new Map<number, Stroke[]>();
+    let slide = 1;
+    let drawing = false;          // draw mode armed
+    let erasing = false;
+    let col = '#eef0ff';
+    let baseW = 4;                // px at 1100 reference width
+    let live: Stroke | null = null;
+    const strokes = () => {
+      if (!store.has(slide)) store.set(slide, []);
+      return store.get(slide)!;
+    };
+
+    /* ── sizing ── */
+    function resize() {
+      const p = C!.parentElement!;
+      W = p.clientWidth; H = p.clientHeight;
+      C!.width = W * DPR; C!.height = H * DPR;
+      ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+      redraw();
+    }
+    const scale = () => Math.max(0.55, W / 1100);
+
+    /* ── painting ── */
+    function apply(s: Stroke) {
+      ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+      ctx.lineWidth = s.w * scale();
+      if (s.erase) {
+        ctx.globalCompositeOperation = 'destination-out';
+        ctx.strokeStyle = 'rgba(0,0,0,1)';
+        ctx.shadowBlur = 0;
+        ctx.lineWidth = s.w * scale() * 3.2;
+      } else {
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.strokeStyle = s.col;
+        ctx.shadowColor = s.col; ctx.shadowBlur = 5;
+      }
+    }
+    const px = (p: [number, number]): [number, number] => [p[0] * W, p[1] * H];
+
+    /** full smoothed stroke (used on redraw) */
+    function paint(s: Stroke) {
+      const p = s.pts;
+      if (!p.length) return;
+      apply(s);
+      if (p.length === 1) {
+        const [x, y] = px(p[0]);
+        ctx.beginPath(); ctx.arc(x, y, (ctx.lineWidth / 2), 0, Math.PI * 2);
+        ctx.fillStyle = s.erase ? 'rgba(0,0,0,1)' : s.col; ctx.fill();
+      } else {
+        ctx.beginPath();
+        const a = px(p[0]); ctx.moveTo(a[0], a[1]);
+        for (let i = 1; i < p.length - 1; i++) {
+          const c = px(p[i]), n = px(p[i + 1]);
+          ctx.quadraticCurveTo(c[0], c[1], (c[0] + n[0]) / 2, (c[1] + n[1]) / 2);
+        }
+        const l = px(p[p.length - 1]); ctx.lineTo(l[0], l[1]);
+        ctx.stroke();
+      }
+      ctx.shadowBlur = 0; ctx.globalCompositeOperation = 'source-over';
+    }
+
+    /** append only the newest segment (cheap, used while drawing) */
+    function paintTail(s: Stroke) {
+      const p = s.pts, n = p.length;
+      if (n < 2) { paint(s); return; }
+      apply(s);
+      ctx.beginPath();
+      if (n === 2) {
+        const a = px(p[0]), b = px(p[1]);
+        ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]);
+      } else {
+        const p0 = px(p[n - 3]), p1 = px(p[n - 2]), p2 = px(p[n - 1]);
+        ctx.moveTo((p0[0] + p1[0]) / 2, (p0[1] + p1[1]) / 2);
+        ctx.quadraticCurveTo(p1[0], p1[1], (p1[0] + p2[0]) / 2, (p1[1] + p2[1]) / 2);
+      }
+      ctx.stroke();
+      ctx.shadowBlur = 0; ctx.globalCompositeOperation = 'source-over';
+    }
+
+    function redraw() {
+      ctx.clearRect(0, 0, W, H);
+      strokes().forEach(paint);
+    }
+
+    /* ── modes ── */
+    function setDraw(on: boolean) {
+      drawing = on;
+      C!.classList.toggle('draw', on);
+      penBtn!.classList.toggle('on', on);
+      vp?.classList.toggle('board-on', on);
+      if (!on) { erasing = false; eraseBtn!.classList.remove('on'); }
+    }
+    function setVeil(on: boolean) {
+      veil!.classList.toggle('on', on);
+      veilBtn!.classList.toggle('on', on);
+    }
+    function setBar(show: boolean) {
+      bar!.classList.toggle('hidden', !show);
+      ghost!.classList.toggle('on', !show);
+    }
+    function pickCol(c: string) {
+      col = c; erasing = false; eraseBtn!.classList.remove('on');
+      document.querySelectorAll<HTMLElement>('.lb-sw').forEach((b) => b.classList.toggle('on', b.dataset.col === c));
+      if (!drawing) setDraw(true);
+    }
+    function pickW(w: number) {
+      baseW = w;
+      document.querySelectorAll<HTMLElement>('.lb-sz').forEach((b) => b.classList.toggle('on', Number(b.dataset.w) === w));
+    }
+
+    /* ── pointer ── */
+    function pos(e: PointerEvent): [number, number] {
+      const r = C!.getBoundingClientRect();
+      return [(e.clientX - r.left) / r.width, (e.clientY - r.top) / r.height];
+    }
+    C.addEventListener('pointerdown', (e) => {
+      if (!drawing) return;
+      e.preventDefault();
+      // start the stroke FIRST — capture is an optimization, never a prerequisite
+      live = { col, w: baseW, erase: erasing, pts: [pos(e)] };
+      strokes().push(live);
+      paint(live);
+      try { C.setPointerCapture(e.pointerId); } catch { /* capture unavailable — drawing still works */ }
+    });
+    C.addEventListener('pointermove', (e) => {
+      if (!live) return;
+      const p = pos(e);
+      const last = live.pts[live.pts.length - 1];
+      if (Math.hypot((p[0] - last[0]) * W, (p[1] - last[1]) * H) < 2) return;
+      live.pts.push(p);
+      paintTail(live);
+    });
+    const end = () => { if (live) { live = null; redraw(); } };
+    C.addEventListener('pointerup', end);
+    C.addEventListener('pointercancel', end);
+    C.addEventListener('pointerleave', end);
+
+    /* ── toolbar ── */
+    penBtn.addEventListener('click', () => setDraw(!drawing));
+    eraseBtn.addEventListener('click', () => {
+      erasing = !erasing;
+      eraseBtn.classList.toggle('on', erasing);
+      if (erasing && !drawing) setDraw(true);
+    });
+    veilBtn.addEventListener('click', () => setVeil(!veil.classList.contains('on')));
+    document.getElementById('lbUndo')!.addEventListener('click', () => { strokes().pop(); redraw(); });
+    document.getElementById('lbClear')!.addEventListener('click', () => { store.set(slide, []); redraw(); });
+    document.getElementById('lbHide')!.addEventListener('click', () => setBar(false));
+    ghost.addEventListener('click', () => setBar(true));
+    document.querySelectorAll<HTMLElement>('.lb-sw').forEach((b) =>
+      b.addEventListener('click', () => pickCol(b.dataset.col!)));
+    document.querySelectorAll<HTMLElement>('.lb-sz').forEach((b) =>
+      b.addEventListener('click', () => pickW(Number(b.dataset.w))));
+
+    /* ── keyboard ── */
+    const COLS = ['#eef0ff', '#ec4899', '#a855f7', '#67e8f9', '#fbbf24', '#34d399'];
+    document.addEventListener('keydown', (e) => {
+      const k = e.key.toLowerCase();
+      if (k === 'b') { setDraw(!drawing); return; }
+      if (k === 'v') { setVeil(!veil.classList.contains('on')); return; }
+      if (k === 'h') { setBar(bar.classList.contains('hidden')); return; }
+      if (k === 'e') { eraseBtn.click(); return; }
+      if (k === 'z') { strokes().pop(); redraw(); return; }
+      if (e.shiftKey && k === 'c') { store.set(slide, []); redraw(); return; }
+      if (k === 'escape') { setDraw(false); setVeil(false); return; }
+      if (k === ']') { pickW(baseW <= 2.4 ? 4 : 7); return; }
+      if (k === '[') { pickW(baseW >= 7 ? 4 : 2.4); return; }
+      const n = Number(e.key);
+      if (n >= 1 && n <= 6) pickCol(COLS[n - 1]);
+    });
+
+    /* ── slide sync ── */
+    document.addEventListener('deck:slide', (e) => {
+      const n = (e as CustomEvent<number>).detail;
+      if (typeof n === 'number') { slide = n; redraw(); }
+    });
+
+    resize();
+    new ResizeObserver(resize).observe(C.parentElement!);
+  }
+</script>

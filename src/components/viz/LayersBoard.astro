@@ -1,0 +1,81 @@
+---
+/** LayersBoard — السبورة: الطبقات التلاتة بتتُرسم بالماركر قدام المتفرج، والأسماء بتتكتب بعدها. */
+---
+<div class="lb-wrap"><canvas id="lbViz"></canvas></div>
+<style>
+  .lb-wrap { position: relative; width: 100%; height: 330px; }
+  .lb-wrap canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+</style>
+<script>
+  import { fit, loop, CL, marker, bezierPts, txt, at, ease, pulse } from '@lib/viz';
+  import { board } from '@lib/viz';
+
+  const C = document.getElementById('lbViz') as HTMLCanvasElement | null;
+  if (C) {
+    const s = fit(C);
+    const CYCLE = 620;
+
+    loop((frame) => {
+      const { ctx, W, H } = s;
+      ctx.clearRect(0, 0, W, H);
+      const f = frame % CYCLE;
+
+      const b = board(ctx, W, H, { title: 'أي برومبت = ٣ طبقات', frame });
+
+      const cx = b.x + b.w / 2;
+      const boxW = Math.min(250, b.w * 0.42);
+      const boxH = 44;
+      const top = b.y + 58;
+      const gap = 14;
+
+      const ROWS = [
+        { t: 'سياق',       s: 'إنت مين وبتشتغل على إيه', col: CL.cyan },
+        { t: 'مهمة',       s: 'عايزه يعمل إيه — فعل واحد', col: CL.violet },
+        { t: 'شكل الخروج', s: 'يرجّعلك إيه بالظبط',        col: CL.pink },
+      ];
+
+      ROWS.forEach((r, i) => {
+        const y = top + i * (boxH + gap);
+        const pBox = at(f, 18 + i * 62, 88 + i * 62);   // الصندوق بيتُرسم
+        const pLbl = at(f, 72 + i * 62, 118 + i * 62);  // الاسم بيتكتب
+
+        // صندوق مرسوم بالماركر (مقفول)
+        const x0 = cx - boxW / 2, x1 = cx + boxW / 2;
+        marker(ctx, [[x0, y], [x1, y], [x1, y + boxH], [x0, y + boxH], [x0, y - 1]], pBox, r.col, 2.4);
+
+        if (pLbl > 0) {
+          const a = ease(pLbl);
+          txt(ctx, r.t, x1 - 16, y + 18, { size: 16, col: CL.chalk, weight: 800, align: 'right', a, font: 'marker' });
+          txt(ctx, r.s, x1 - 16, y + 34, { size: 11.5, col: r.col, weight: 700, align: 'right', a, font: 'marker' });
+          txt(ctx, String(i + 1), x0 + 20, y + boxH / 2, { size: 17, col: r.col, weight: 900, a, font: 'marker' });
+        }
+      });
+
+      // ── قوس بيلمّ التلاتة ← النتيجة ──
+      const stackH = ROWS.length * boxH + (ROWS.length - 1) * gap;
+      const bx0 = cx - boxW / 2 - 12;
+      const pArc = at(f, 250, 330);
+      if (pArc > 0) {
+        const pts = bezierPts([bx0, top + 6], [bx0 - 34, top + stackH / 2], [bx0, top + stackH - 6], 26);
+        marker(ctx, pts, pArc, CL.amber, 2.2);
+      }
+
+      const pOut = at(f, 320, 400);
+      if (pOut > 0) {
+        const a = ease(pOut);
+        const yMid = top + stackH / 2;
+        marker(ctx, [[bx0 - 36, yMid], [bx0 - 74, yMid]], at(f, 320, 360), CL.amber, 2.2);
+        txt(ctx, 'رد مظبوط', bx0 - 80, yMid - 8, { size: 15, col: CL.green, weight: 900, align: 'right', a, font: 'marker' });
+        txt(ctx, 'من أول مرة', bx0 - 80, yMid + 12, { size: 12.5, col: CL.dim, weight: 700, align: 'right', a, font: 'marker' });
+      }
+
+      // ── الخلاصة تحت ──
+      const pEnd = at(f, 410, 480);
+      if (pEnd > 0) {
+        const a = ease(pEnd) * (0.75 + 0.25 * pulse(frame, 0.04));
+        txt(ctx, 'شيل طبقة — الـAI هيخترع مكانها', cx, b.y + b.h - 22,
+            { size: 13.5, col: CL.amber, weight: 800, a, font: 'marker' });
+      }
+    });
+  }
+</script>

@@ -1,0 +1,151 @@
+---
+/**
+ * BrandLogo — the Syntax Academy signature mark: an animated split brain.
+ *   • left hemisphere  = warm / creative  (orange)
+ *   • right hemisphere = cool / logical    (blue)
+ * Neural nodes, connection edges, traveling spark pulses, a purple radial
+ * glow, and a corpus-callosum spine that fades orange → fuchsia → blue.
+ * Same identity (and palette) as syntax.academy — shared across every course.
+ */
+interface Props { size?: number }
+const { size = 34 } = Astro.props;
+---
+<span class="brand-brain" style={`--bl-size:${size}px`}>
+  <canvas class="brand-brain-c" width={size} height={size} data-size={size}></canvas>
+</span>
+<style>
+  .brand-brain {
+    position: relative;
+    width: var(--bl-size);
+    height: var(--bl-size);
+    display: inline-flex;
+    flex-shrink: 0;
+  }
+  .brand-brain-c { width: 100%; height: 100%; display: block; }
+</style>
+<script>
+  document.querySelectorAll<HTMLCanvasElement>('.brand-brain-c').forEach((c) => {
+    const ctx = c.getContext('2d');
+    if (!ctx) return;
+    const DPR = Math.min(window.devicePixelRatio || 1, 2);
+    const size = Number(c.dataset.size) || 34;
+    c.width = size * DPR; c.height = size * DPR;
+    ctx.scale(DPR, DPR);
+
+    const W = size, H = size, cx = W / 2, cy = H / 2, ns = W / 46;
+    let t = 0;
+
+    // neural nodes (mirrored across the centre)
+    const nodes = [
+      { x: -8 * ns, y: -6 * ns }, { x: -14 * ns, y: 0 }, { x: -6 * ns, y: 4 * ns },
+      { x: -12 * ns, y: 7 * ns }, { x: -4 * ns, y: -10 * ns }, { x: -10 * ns, y: -4 * ns },
+      { x: -7 * ns, y: 10 * ns },
+      { x: 8 * ns, y: -6 * ns }, { x: 14 * ns, y: 0 }, { x: 6 * ns, y: 4 * ns },
+      { x: 12 * ns, y: 7 * ns }, { x: 4 * ns, y: -10 * ns }, { x: 10 * ns, y: -4 * ns },
+      { x: 7 * ns, y: 10 * ns },
+    ];
+    const cn: [number, number][] = [
+      [0, 1], [1, 2], [2, 3], [0, 4], [4, 5], [5, 1], [2, 6], [5, 2],
+      [7, 8], [8, 9], [9, 10], [7, 11], [11, 12], [12, 8], [9, 13], [12, 9],
+    ];
+    const sp = Array.from({ length: 4 }, () => ({
+      c: Math.floor(Math.random() * cn.length),
+      p: Math.random(),
+      s: 0.007 + Math.random() * 0.012,
+      z: (1 + Math.random() * 0.7) * ns,
+    }));
+
+    function dH(s: number, c1: string, c2: string) {
+      ctx!.save();
+      ctx!.translate(cx, cy);
+      ctx!.beginPath();
+      if (s > 0) {
+        ctx!.moveTo(0, -16 * ns);
+        ctx!.bezierCurveTo(4 * ns, -18 * ns, 14 * ns, -18 * ns, 18 * ns, -12 * ns);
+        ctx!.bezierCurveTo(22 * ns, -6 * ns, 22 * ns, 0, 20 * ns, 6 * ns);
+        ctx!.bezierCurveTo(18 * ns, 12 * ns, 14 * ns, 16 * ns, 8 * ns, 16 * ns);
+        ctx!.bezierCurveTo(4 * ns, 16 * ns, 2 * ns, 14 * ns, 0, 12 * ns);
+      } else {
+        ctx!.moveTo(0, -16 * ns);
+        ctx!.bezierCurveTo(-4 * ns, -18 * ns, -14 * ns, -18 * ns, -18 * ns, -12 * ns);
+        ctx!.bezierCurveTo(-22 * ns, -6 * ns, -22 * ns, 0, -20 * ns, 6 * ns);
+        ctx!.bezierCurveTo(-18 * ns, 12 * ns, -14 * ns, 16 * ns, -8 * ns, 16 * ns);
+        ctx!.bezierCurveTo(-4 * ns, 16 * ns, -2 * ns, 14 * ns, 0, 12 * ns);
+      }
+      ctx!.closePath();
+      const g = ctx!.createLinearGradient(s > 0 ? 0 : -20 * ns, -16 * ns, s > 0 ? 20 * ns : 0, 16 * ns);
+      g.addColorStop(0, c1); g.addColorStop(1, c2);
+      ctx!.fillStyle = g;
+      ctx!.globalAlpha = 0.22 + 0.07 * Math.sin(t * 2);
+      ctx!.fill();
+      ctx!.globalAlpha = 0.65 + 0.14 * Math.sin(t * 2);
+      ctx!.strokeStyle = c1; ctx!.lineWidth = 1.2 * ns;
+      ctx!.stroke();
+      ctx!.restore();
+    }
+
+    function dC() {
+      ctx!.save();
+      ctx!.translate(cx, cy);
+      ctx!.globalAlpha = 0.17 + 0.07 * Math.sin(t * 3);
+      ctx!.lineWidth = 0.5 * ns;
+      cn.forEach((co) => {
+        const a = nodes[co[0]], b = nodes[co[1]];
+        ctx!.strokeStyle = a.x < 0 ? 'rgba(251,146,60,.5)' : 'rgba(56,189,248,.5)';
+        ctx!.beginPath(); ctx!.moveTo(a.x, a.y); ctx!.lineTo(b.x, b.y); ctx!.stroke();
+      });
+      nodes.forEach((n, i) => {
+        ctx!.globalAlpha = 0.35 + 0.2 * Math.sin(t * 2 + i);
+        ctx!.fillStyle = n.x < 0 ? '#fb923c' : '#38bdf8';
+        ctx!.beginPath(); ctx!.arc(n.x, n.y, 0.9 * ns, 0, Math.PI * 2); ctx!.fill();
+      });
+      sp.forEach((s) => {
+        s.p += s.s;
+        if (s.p >= 1) { s.p = 0; s.c = Math.floor(Math.random() * cn.length); }
+        const a = nodes[cn[s.c][0]], b = nodes[cn[s.c][1]];
+        const sx = a.x + (b.x - a.x) * s.p;
+        const sy = a.y + (b.y - a.y) * s.p;
+        const il = sx < 0;
+        ctx!.globalAlpha = 0.9;
+        const sg = ctx!.createRadialGradient(sx, sy, 0, sx, sy, s.z * 3);
+        sg.addColorStop(0, il ? 'rgba(251,146,60,.8)' : 'rgba(56,189,248,.8)');
+        sg.addColorStop(1, 'transparent');
+        ctx!.fillStyle = sg;
+        ctx!.fillRect(sx - s.z * 3, sy - s.z * 3, s.z * 6, s.z * 6);
+        ctx!.fillStyle = il ? '#fff7ed' : '#f0f9ff';
+        ctx!.beginPath(); ctx!.arc(sx, sy, s.z * 0.5, 0, Math.PI * 2); ctx!.fill();
+      });
+      ctx!.restore();
+    }
+
+    function fr() {
+      t += 0.016;
+      ctx!.clearRect(0, 0, W, H);
+      // soft purple radial glow
+      ctx!.save();
+      ctx!.globalAlpha = 0.05 + 0.03 * Math.sin(t * 1.5);
+      const og = ctx!.createRadialGradient(cx, cy, 4 * ns, cx, cy, 22 * ns);
+      og.addColorStop(0, '#a855f7');
+      og.addColorStop(0.5, 'rgba(99,102,241,.2)');
+      og.addColorStop(1, 'transparent');
+      ctx!.fillStyle = og; ctx!.fillRect(0, 0, W, H);
+      ctx!.restore();
+      // hemispheres
+      dH(-1, '#fb923c', '#f97316');
+      dH(1, '#38bdf8', '#0ea5e9');
+      // neural net
+      dC();
+      // corpus-callosum spine
+      ctx!.save();
+      ctx!.translate(cx, cy);
+      ctx!.globalAlpha = 0.14 + 0.09 * Math.sin(t * 2);
+      const cg = ctx!.createLinearGradient(0, -15 * ns, 0, 13 * ns);
+      cg.addColorStop(0, '#fb923c'); cg.addColorStop(0.5, '#d946ef'); cg.addColorStop(1, '#38bdf8');
+      ctx!.strokeStyle = cg; ctx!.lineWidth = 1 * ns;
+      ctx!.beginPath(); ctx!.moveTo(0, -15 * ns); ctx!.lineTo(0, 13 * ns); ctx!.stroke();
+      ctx!.restore();
+      requestAnimationFrame(fr);
+    }
+    fr();
+  });
+</script>

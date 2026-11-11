@@ -13,7 +13,7 @@ export interface LessonRef {
 
 export const LESSONS: LessonRef[] = [
   { n: '١', t: 'خلي الـAI يفهمك من أول مرة — الطبقات التلاتة', m: '~١٢ د', href: '/lesson-01', unit: 'الأساس' },
-  { n: '٢', t: 'درس تاني (نموذج فاضي)', m: '—', href: null, unit: 'الأساس' },
+  { n: '٢', t: 'ليه LOKAL نجح؟ — دراسة حالة تفاعلية', m: '~١٨ د', href: '/lokal', unit: 'Business Case Studies' },
 ];
 
 /** الدروس الجاهزة بس — للتنقل قبل/بعد */

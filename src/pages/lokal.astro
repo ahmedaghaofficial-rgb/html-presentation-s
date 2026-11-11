@@ -1,0 +1,311 @@
+---
+/**
+ * LOKAL — Interactive business case study using the ORIGINAL Syntax Deck runtime.
+ * Independent editorial case study; not affiliated with LOKAL or Syntax Academy.
+ * Last source review: 2026-11-11. No unverifiable profit/commission figures.
+ */
+import Deck, { type DeckSlide } from '@layouts/Deck.astro';
+import LokalStory from '@components/viz/LokalStory.astro';
+const slides: DeckSlide[] = [
+  {num:'١',title:'السؤال',part:'story',note:'ابدأ بالسؤال: ليه LOKAL نجح؟ الإجابة مش في بيع التيشيرتات، لكن في بيع الوصول للسوق.'},
+  {num:'٢',title:'الأرقام',part:'story',note:'25 مليون أول 3 شهور معلنة في Shark Tank يناير 2025؛ التسعة أرقام السنوية ذكرها المؤسس عن 2025. الأرقام غير مدققة، ولا تثبت صافي الربح.'},
+  {num:'٣',title:'الفجوة',part:'story',note:'فرّق بين مشاكل البراندات ومشاكل العملاء؛ دي فرضية تفسيرية للنموذج، مش استبيان عملاء منشور.'},
+  {num:'٤',title:'المنظومة',part:'rule',note:'سيب الرسم يبني العلاقات. LOKAL مش مصنع ملابس؛ بيربط عدة أطراف ويضيف قناة بيع.'},
+  {num:'٥',title:'المحركات',part:'rule',note:'ست فرضيات لتفسير النجاح، مرتبة كعوامل مترابطة. لا توجد بيانات سببية تثبت وزن كل عامل.'},
+  {num:'٦',title:'رحلة العميل',part:'mind',note:'المخطط نموذج تحليلي محتمل وليس بيانات فعلية لمسار عملاء LOKAL.'},
+  {num:'٧',title:'الموقع',part:'mind',note:'الثلاثة فروع موجودين في الموقع الرسمي وقت المراجعة؛ فكر في قيمة الموقع وثقة المستهلك.'},
+  {num:'٨',title:'التنوع والهوية',part:'mind',note:'تنوع البراندات يقلل الاعتماد على SKU واحد لكنه يزيد تعقيد العمليات. الهوية الخاصة بالمنصة أحد أصولها.'},
+  {num:'٩',title:'الولاء',part:'mind',note:'تطبيق الولاء يكافئ حتى فواتير شو روم محلية أخرى. لا توجد بيانات retention أو زيادة LTV منشورة.'},
+  {num:'١٠',title:'الفلوس',part:'sort',note:'حرّك السلايدرز. الأرقام افتراضية بالكامل لتوضيح الفرق بين إجمالي المبيعات ودخل المنصة والربحية.'},
+  {num:'١١',title:'المنافسين',part:'sort',note:'Locally وGo Native منافسان بنماذج قريبة؛ لا ننسب نسبهم أو عقودهم إلى LOKAL.'},
+  {num:'١٢',title:'توقيت السوق',part:'sort',note:'موجة البراندات المحلية والسياق الاقتصادي عوامل محتملة. تزامن الفرصة لا يثبت سببية مباشرة.'},
+  {num:'١٣',title:'المخاطر',part:'close',note:'سياسات الاسترجاع تختلف بين FAQ والسياسة الرسمية، ولا توجد قوائم مالية منشورة للتحقق من هامش صافي الربح.'},
+  {num:'١٤',title:'الدرس',part:'close',note:'اختم بما يمكن قياسه. أعرض مصادر الدراسة في آخر السلايد، واذكر أنها دراسة تحليلية مستقلة.'}
+];
+---
+<Deck
+  title="ليه LOKAL نجح؟ — دراسة حالة تفاعلية | Syntax Deck"
+  description="تحليل نموذج LOKAL المصري: التوزيع، القيمة، النمو، الولاء، المنافسون، والمخاطر المالية."
+  deckName="LOKAL / CASE STUDY"
+  deckSub="تحليل مستقل · عربي · ١٤ مشهد"
+  slides={slides}
+>
+  <div class="slide active part-story" id="slide-1">
+    <div class="reveal lok-eyebrow">Business Case Study · Egypt</div>
+    <div class="lok-intro">
+      <div class="reveal lok-brand">LOKAL<span>®</span></div>
+      <h1 class="reveal">ليه البراند ده <em>نجح؟</em></h1>
+      <p class="reveal lok-subline">الإجابة مش إنه بيبيع ملابس مصرية كويسة وبس.</p>
+      <div class="reveal lok-bigline">هو بيبيع <strong>الوصول للسوق</strong> — للبراندات والعملاء في نفس الوقت.</div>
+      <p class="reveal lok-muted">دراسة مستقلة مبنية على مصادر عامة وتصريحات معلنة · ١١ نوفمبر ٢٠٢٦</p>
+    </div>
+    <div class="sf"><span>Syntax Deck · LOKAL case</span><div class="pd"></div><span>طيب في أرقام تدعم الكلام ده؟ ←</span></div>
+  </div>
+
+  <div class="slide part-story" id="slide-2">
+    <div class="reveal lbl">النتائج المعلنة — مش أرباح مؤكدة</div>
+    <h2 class="reveal">قبل ما نفسّر النجاح… <em>نشوف حجمه.</em></h2>
+    <div class="stage">
+      <div class="lok-stats">
+        <div class="lok-stat reveal"><span>+٢٥ مليون ج</span><small>مبيعات أول ٣ شهور معلنة في Shark Tank · ٢٠٢٥</small></div>
+        <div class="lok-stat reveal"><span>+١٠٠ مليون ج</span><small>مبيعات سنوية ٢٠٢٥ بحسب تصريح المؤسس: «تسعة أرقام»</small></div>
+        <div class="lok-stat reveal"><span>+٢٠٠ ألف</span><small>طلب تراكمي معلن على الموقع الرسمي</small></div>
+        <div class="lok-stat reveal"><span>٣ فروع</span><small>مذكورة بالموقع: ألماظة، مول مصر، ميفيدا ووك</small></div>
+      </div>
+      <p class="reveal lok-notice">مبيعات أو GMV ≠ إيراد محاسبي ≠ صافي ربح. الأرقام معلنة وغير مدققة بشكل مستقل.</p>
+      <div class="lok-sources reveal"><a href="https://sharktankarabi.com/1964/" target="_blank" rel="noopener noreferrer">Shark Tank</a><a href="https://www.linkedin.com/posts/hisham-el-gawly_proud-of-all-of-you-fady-el-gawly-mina-activity-7421520990561591296-19Uw" target="_blank" rel="noopener noreferrer">تصريح المؤسس</a><a href="https://lokaleg.com/" target="_blank" rel="noopener noreferrer">الموقع الرسمي</a></div>
+    </div>
+    <div class="sf"><span>الأرقام المعلنة ليست ميزانية</span><div class="pd"></div><span>البيزنس حل مشكلة إيه؟ ←</span></div>
+  </div>
+
+  <div class="slide part-story" id="slide-3">
+    <div class="reveal lbl">المشكلة الحقيقية</div>
+    <h2 class="reveal">المنتجات كانت موجودة… <em>لكن الوصول ليها صعب.</em></h2>
+    <div class="stage">
+      <div class="lok-three">
+        <div class="lok-panel reveal"><div class="lok-emoji">▧</div><h3>صاحب البراند</h3><p>يبيع أونلاين، لكن فتح فرع مستقل مكلف ويحتاج تشغيل وتسويق.</p></div>
+        <div class="lok-panel reveal"><div class="lok-emoji">◇</div><h3>العميل</h3><p>عايز يجرب ويقارن الخامة والمقاسات ويختار من أكتر من براند.</p></div>
+        <div class="lok-panel reveal"><div class="lok-emoji">▣</div><h3>المول</h3><p>يستفيد من وجهة تجمع منتجات محلية متنوعة لجمهور مهتم بالتسوق.</p></div>
+      </div>
+      <div class="lok-statement reveal">الفرصة = <em>تجميع العرض</em> + <em>تسهيل الاكتشاف</em> + <em>تجربة شراء حقيقية</em></div>
+      <p class="lok-micro reveal">ده تفسير اقتصادي لنموذج العمل، مش نتيجة دراسة ميدانية منشورة.</p>
+    </div>
+    <div class="sf"><span>مين بيستفيد من وجود المنصة؟</span><div class="pd"></div><span>ارسم معايا منظومة القيمة ←</span></div>
+  </div>
+
+  <div class="slide part-rule" id="slide-4">
+    <div class="reveal lbl">القاعدة الأساسية</div>
+    <h2 class="reveal">LOKAL مش بس بائع… <em>دي منصة متعددة الأطراف.</em></h2>
+    <p class="reveal sub">بتوصل احتياجات مختلفة في تجربة بيع واحدة. سيب الرسم يكتمل.</p>
+    <div class="stage"><div class="reveal"><LokalStory scene="ecosystem" label="مخطط متحرك يربط LOKAL بالبراندات المصرية والعملاء والمولات"/></div></div>
+    <div class="sf"><span>Multi-sided platform</span><div class="pd"></div><span>إيه المحركات الستة للنمو؟ ←</span></div>
+  </div>
+
+  <div class="slide part-rule" id="slide-5">
+    <div class="reveal lbl">٦ محركات للنمو</div>
+    <h2 class="reveal">النجاح مش حركة واحدة… <em>دي منظومة.</em></h2>
+    <div class="stage">
+      <div class="lok-six">
+        <div class="lok-mini reveal"><b>١ · توزيع</b><p>بيع مباشر داخل فرع ومن خلال الموقع.</p></div>
+        <div class="lok-mini reveal"><b>٢ · موقع</b><p>وجود في وجهات تسوق كبيرة.</p></div>
+        <div class="lok-mini reveal"><b>٣ · تنوع</b><p>أكتر من براند في زيارة واحدة.</p></div>
+        <div class="lok-mini reveal"><b>٤ · هوية</b><p>اسم LOKAL يتحفظ في ذهن العميل.</p></div>
+        <div class="lok-mini reveal"><b>٥ · قنوات</b><p>Retail + E-commerce + PR وتسويق.</p></div>
+        <div class="lok-mini reveal"><b>٦ · ولاء</b><p>مكافآت وأسباب للرجوع للمنصة.</p></div>
+      </div>
+      <p class="lok-micro reveal">دي عوامل تفسيرية؛ وزن كل عامل في المبيعات غير معلن.</p>
+    </div>
+    <div class="sf"><span>السبب الأقوى: تقليل الاحتكاك</span><div class="pd"></div><span>نتتبع رحلة العميل ←</span></div>
+  </div>
+
+  <div class="slide part-mind" id="slide-6">
+    <div class="reveal lbl">رحلة العميل — نموذج توضيحي</div>
+    <h2 class="reveal">من شاشة الموبايل… <em>لتجربة ملموسة.</em></h2>
+    <div class="stage"><div class="reveal"><LokalStory scene="journey" label="رحلة عميل افتراضية: اكتشاف على السوشيال، تجربة في فرع، شراء، ثم عودة"/></div></div>
+    <div class="sf"><span>Omnichannel</span><div class="pd"></div><span>المكان نفسه عنصر من التسويق ←</span></div>
+  </div>
+
+  <div class="slide part-mind" id="slide-7">
+    <div class="reveal lbl">الموقع يصنع الانطباع</div>
+    <h2 class="reveal">الفروع مش مجرد إيجار… <em>هي جزء من التموضع.</em></h2>
+    <div class="stage">
+      <div class="lok-mall-head reveal">٣ وجهات مذكورة بالموقع الرسمي</div>
+      <div class="lok-locations reveal"><div><b>City Centre Almaza</b><span>شرق القاهرة</span></div><div><b>Mall of Egypt</b><span>٦ أكتوبر</span></div><div><b>Mivida Walk</b><span>القاهرة الجديدة</span></div></div>
+      <div class="lok-statement reveal">العميل بيشوف البراند المحلي في <em>سياق تسوّق احترافي</em> — وده ممكن يرفع الثقة.</div>
+      <p class="lok-micro reveal">الانطباع ده استنتاج تسويقي، مش قياس منشور لتحسن الثقة.</p>
+    </div>
+    <div class="sf"><span>المصدر: lokaleg.com</span><div class="pd"></div><span>طب اختلاف البراندات بيخدمهم إزاي؟ ←</span></div>
+  </div>
+
+  <div class="slide part-mind" id="slide-8">
+    <div class="reveal lbl">التنوع والهوية</div>
+    <h2 class="reveal">امتلاك الرفّ والعلاقة… <em>مش شرط امتلاك المنتج.</em></h2>
+    <div class="stage">
+      <div class="lok-dual">
+        <div class="lok-panel reveal"><div class="lok-topline">Portfolio</div><h3>تنوع البراندات</h3><p>كل عميل قد يكتشف بديلًا لو منتج معين ما عجبوش.</p><p class="lok-caveat">لكن كل براند إضافي = تعقيد في الجودة والمخزون والخدمة.</p></div>
+        <div class="lok-panel reveal"><div class="lok-topline">Brand Equity</div><h3>هوية LOKAL</h3><p>العميل ممكن يفتكر المكان نفسه، حتى لو نسي اسم المنتج اللي اشتراه.</p><p class="lok-caveat">ده يخلق أصلًا تسويقيًا للمنصة، مش مجرد إيجار أرفف.</p></div>
+      </div>
+      <div class="lok-statement reveal">قوة المنصة تظهر لما <em>المستهلك يطلب الوجهة نفسها</em> — مش بس البراند الموجود فيها.</div>
+    </div>
+    <div class="sf"><span>Retail mix + platform brand</span><div class="pd"></div><span>الولاء فيه تفصيلة غير معتادة ←</span></div>
+  </div>
+
+  <div class="slide part-mind" id="slide-9">
+    <div class="reveal lbl">المفاجأة في تطبيق الولاء</div>
+    <h2 class="reveal">العميل ممكن يكسب نقاط… <em>حتى لو اشترى من غيرهم.</em></h2>
+    <div class="stage"><div class="reveal"><LokalStory scene="loyalty" label="حلقة ولاء LOKAL المعلنة: التسوق المحلي ومسح الفواتير ثم نقاط ومكافآت"/></div></div>
+    <p class="lok-micro reveal">الميزة موثقة في وصف التطبيق وموقع LOKAL؛ أثرها على التكرار والاحتفاظ غير منشور.</p>
+    <div class="lok-sources reveal"><a href="https://apps.apple.com/eg/app/lokal-egypt/id6759270199" target="_blank" rel="noopener noreferrer">وصف التطبيق</a><a href="https://lokaleg.com/" target="_blank" rel="noopener noreferrer">الموقع الرسمي</a></div>
+    <div class="sf"><span>نقاط ≠ إثبات Retention</span><div class="pd"></div><span>بس الفلوس بتدخل منين؟ ←</span></div>
+  </div>
+
+  <div class="slide part-sort" id="slide-10">
+    <div class="reveal lbl">اقتصاديات النموذج — محاكاة فقط</div>
+    <h2 class="reveal">الـ١٠٠ مليون مبيعات… <em>مش ١٠٠ مليون ربح.</em></h2>
+    <div class="stage">
+      <div class="lok-calc reveal">
+        <div class="lok-controls">
+          <label for="lokSales">مبيعات شهرية مفترضة للبراندات <strong id="lokSalesValue">١٬٠٠٠٬٠٠٠ ج</strong></label>
+          <input id="lokSales" type="range" min="200000" max="5000000" step="100000" value="1000000" aria-label="غيّر إجمالي المبيعات الافتراضية" />
+          <label for="lokRate">حصة المنصة الافتراضية <strong id="lokRateValue">٢٠٪</strong></label>
+          <input id="lokRate" type="range" min="5" max="40" step="5" value="20" aria-label="غيّر النسبة الافتراضية للمنصة" />
+        </div>
+        <div class="lok-calc-output"><small>دخل المنصة الافتراضي قبل المصاريف</small><strong id="lokIncome">٢٠٠٬٠٠٠ ج</strong><p>ده مش دخل LOKAL الفعلي؛ العقود والعمولات الحقيقية غير معلنة.</p></div>
+      </div>
+      <div class="lok-statement reveal">علشان نحكم على الربحية لازم نعرف: <em>الإيجار + التسويق + المرتبات + المرتجعات + تكلفة المخزون.</em></div>
+    </div>
+    <div class="sf"><span>GMV · Revenue · Net Profit</span><div class="pd"></div><span>الفكرة مش حصرية… فيه منافسين ←</span></div>
+  </div>
+
+  <div class="slide part-sort" id="slide-11">
+    <div class="reveal lbl">مشروع ناجح ≠ فكرة بلا منافسين</div>
+    <h2 class="reveal">مين تاني بيجمع البراندات المصرية؟</h2>
+    <div class="stage">
+      <div class="lok-compare">
+        <div class="lok-panel reveal"><div class="lok-topline">Case Study</div><h3>LOKAL</h3><p>فروع + متجر أونلاين + تطبيق ولاء يشمل فواتير براندات محلية أخرى.</p></div>
+        <div class="lok-panel reveal"><div class="lok-topline">Competitor</div><h3>Locally</h3><p>شبكة معارض وتسويق وتصوير للبراندات؛ نموذج يشمل رسومًا ونسب مبيعات وفق تصريحاتها.</p></div>
+        <div class="lok-panel reveal"><div class="lok-topline">Competitor</div><h3>Go Native</h3><p>اختيار المنتجات حسب الأداء؛ نموذج يجمع بين الـConsignment والشراء بالجملة.</p></div>
+      </div>
+      <p class="lok-notice reveal">عقود المنافسين مش دليل على عقود LOKAL. التنفيذ والتشغيل هما اللي بيفرّقوا.</p>
+      <div class="lok-sources reveal"><a href="https://enterpriseam.com/egypt/2026/10/22/a-new-category-of-egyptian-retail-is-anchoring-the-countrys-biggest-malls/" target="_blank" rel="noopener noreferrer">EnterpriseAM · أكتوبر ٢٠٢٦</a></div>
+    </div>
+    <div class="sf"><span>Distribution advantage</span><div class="pd"></div><span>ليه التوقيت ساعد النموذج؟ ←</span></div>
+  </div>
+
+  <div class="slide part-sort" id="slide-12">
+    <div class="reveal lbl">توقيت السوق</div>
+    <h2 class="reveal">الموجة كانت موجودة… <em>والمنصة ركبتها.</em></h2>
+    <div class="stage">
+      <div class="lok-three">
+        <div class="lok-panel reveal"><div class="lok-emoji">↗</div><h3>براندات محلية</h3><p>جيل براندات ظهر أونلاين واحتاج توزيع وتجربة واقعية.</p></div>
+        <div class="lok-panel reveal"><div class="lok-emoji">⇄</div><h3>سلوك متغير</h3><p>مستهلك مستعد يجرّب بدائل محلية ضمن تجربة تسوق حديثة.</p></div>
+        <div class="lok-panel reveal"><div class="lok-emoji">⊞</div><h3>ضغط الاستيراد</h3><p>التضخم وتغير تكلفة الاستيراد خلقوا مساحة تنافسية لبعض المنتجات المحلية.</p></div>
+      </div>
+      <div class="lok-statement reveal">التوقيت فرصة… <em>لكن النجاح المستدام محتاج اقتصاديات تشغيل متماسكة.</em></div>
+      <p class="lok-micro reveal">ده تفسير للسياق القطاعي، مش إثبات سببية لنمو LOKAL.</p>
+    </div>
+    <div class="sf"><span>Source: EnterpriseAM, 22 Oct 2026</span><div class="pd"></div><span>إيه اللي ممكن يهدد النمو؟ ←</span></div>
+  </div>
+
+  <div class="slide part-close" id="slide-13">
+    <div class="reveal lbl">النقد أهم من الانبهار</div>
+    <h2 class="reveal">٤ مخاطر ما نقدرش نتجاهلها.</h2>
+    <div class="stage">
+      <div class="lok-riskgrid">
+        <div class="lok-mini reveal"><b>١ · غموض الربحية</b><p>مبيعات معلنة من غير هامش ربح أو تدفق نقدي منشور.</p></div>
+        <div class="lok-mini reveal"><b>٢ · تعقيد الموردين</b><p>التنوع بيزيد تحديات المخزون والتوافر وضبط الجودة.</p></div>
+        <div class="lok-mini reveal"><b>٣ · عدم اتساق السياسات</b><p>FAQ يذكر ٧ أيام إرجاع، والسياسة الرسمية تذكر ١٤ يومًا.</p></div>
+        <div class="lok-mini reveal"><b>٤ · تكلفة التوسع</b><p>مواقع كبيرة وتجهيز وتشغيل… لازم كل فرع يثبت جدواه.</p></div>
+      </div>
+      <p class="lok-micro reveal">مصادر السياسات: صفحات LOKAL الرسمية؛ بقية المخاطر تحليل للنموذج وليست وقائع تشغيلية مثبتة.</p>
+      <div class="lok-sources reveal"><a href="https://lokaleg.com/" target="_blank" rel="noopener noreferrer">FAQ</a><a href="https://lokaleg.com/policies/refund-policy" target="_blank" rel="noopener noreferrer">Return Policy</a></div>
+    </div>
+    <div class="sf"><span>حجم المبيعات لا يكفي للحكم</span><div class="pd"></div><span>إيه الدرس اللي ناخده؟ ←</span></div>
+  </div>
+
+  <div class="slide part-close" id="slide-14">
+    <div class="reveal lbl">النتيجة العملية</div>
+    <h2 class="reveal">السر مش في المنتج… <em>السر في قناة التوزيع.</em></h2>
+    <div class="stage">
+      <div class="lok-conclusion">
+        <div class="lok-takeaway reveal"><strong>طلب على الخدمة؟</strong><span>مؤشرات قوية من نمو المبيعات المعلن والتوسع.</span></div>
+        <div class="lok-takeaway reveal"><strong>ميزة تنافسية؟</strong><span>مكان + تشكيلة + علاقة عميل + قنوات بيع.</span></div>
+        <div class="lok-takeaway reveal"><strong>ربحية مثبتة؟</strong><span>لا. محتاجين قوائم مالية وبيانات وحدة اقتصادية.</span></div>
+      </div>
+      <div class="lok-statement reveal">لو هتكرر الفكرة: ابدأ صغير، وقِس <em>مبيعات/م²، التحويل، الـSell-through، تكرار الشراء وهامش المساهمة.</em></div>
+      <div class="lok-sources reveal">
+        <a href="https://lokaleg.com/" target="_blank" rel="noopener noreferrer">LOKAL</a>
+        <a href="https://sharktankarabi.com/1964/" target="_blank" rel="noopener noreferrer">Shark Tank</a>
+        <a href="https://enterpriseam.com/egypt/2026/10/22/a-new-category-of-egyptian-retail-is-anchoring-the-countrys-biggest-malls/" target="_blank" rel="noopener noreferrer">EnterpriseAM</a>
+        <a href="https://apps.apple.com/eg/app/lokal-egypt/id6759270199" target="_blank" rel="noopener noreferrer">Loyalty</a>
+      </div>
+      <p class="lok-credits reveal">دراسة مستقلة · تصميم العرض بمحرك Syntax Deck الأصلي، من إعداد مصطفى محمد / Syntax Academy · غير تابع لـLOKAL</p>
+    </div>
+    <div class="sf"><span>النمو مش إثبات ربحية</span><div class="pd"></div><span>LOKAL — END</span></div>
+  </div>
+</Deck>
+
+<style>
+  .lok-eyebrow {color:#f9b6ff;font-size:13px;letter-spacing:.1em;font-weight:900}
+  .lok-intro {flex:1;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:12px}
+  .lok-brand {color:#ccff18;font-family:Arial,sans-serif;font-weight:900;font-size:54px;letter-spacing:-.08em;text-shadow:0 0 32px rgba(199,255,27,.18);line-height:1.1}
+  .lok-brand span {font-size:12px;letter-spacing:0;vertical-align:top}
+  .lok-intro h1 {font-size:55px}
+  .lok-subline {font-size:19px;color:#c3bfd6;font-weight:800}
+  .lok-bigline {font-size:25px;line-height:1.55;font-weight:900;background:rgba(163,92,245,.08);border-right:3px solid #c7ff23;border-radius:12px;padding:12px 18px}
+  .lok-bigline strong {color:#caff28}
+  .lok-muted,.lok-micro {color:#9a97ac;font-size:11px;line-height:1.7}
+  .lok-stats {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:10px}
+  .lok-stat {display:flex;flex-direction:column;gap:8px;border:1px solid rgba(255,255,255,.1);border-radius:14px;background:rgba(24,25,38,.9);padding:17px 19px;min-height:115px}
+  .lok-stat span {font-size:29px;color:#caff28;font-weight:900;line-height:1.25}
+  .lok-stat small {font-size:11px;line-height:1.45;color:#b7b2cb;font-weight:700}
+  .lok-notice {background:rgba(245,158,11,.09);border:1px solid rgba(245,158,11,.3);padding:10px 14px;border-radius:10px;color:#e7c994;font-size:12px;font-weight:700;line-height:1.55;margin-top:12px}
+  .lok-sources {display:flex;gap:13px;flex-wrap:wrap;align-items:center;margin-top:9px}
+  .lok-sources a {font-size:11px;color:#87dff7;text-decoration:underline;text-underline-offset:3px}
+  .lok-three,.lok-compare {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px;margin-top:22px}
+  .lok-panel {min-height:175px;display:flex;flex-direction:column;gap:9px;padding:19px 16px;border-radius:16px;border:1px solid rgba(148,136,185,.22);background:rgba(20,19,31,.9)}
+  .lok-panel h3 {color:#f4f2ff;font-size:21px;font-weight:900}
+  .lok-panel p {color:#aaa7bf;font-size:13px;line-height:1.7}
+  .lok-emoji {font-size:31px;color:#d0a8ff;line-height:1}
+  .lok-statement {margin-top:17px;border-right:3px solid #a855f7;background:rgba(93,73,151,.12);padding:15px 19px;border-radius:10px;font-size:16px;font-weight:800;line-height:1.65}
+  .lok-statement em {font-style:normal;color:#67e8f9}
+  .lok-six,.lok-riskgrid {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:15px}
+  .lok-mini {min-height:115px;padding:14px 17px;border:1px solid rgba(255,255,255,.1);border-radius:14px;background:rgba(21,20,34,.9)}
+  .lok-mini b {display:block;color:#d7c8ff;font-size:17px;margin-bottom:5px}
+  .lok-mini p {font-size:12px;color:#afaac3;line-height:1.6}
+  .lok-riskgrid {grid-template-columns:repeat(2,minmax(0,1fr))}
+  .lok-riskgrid .lok-mini {min-height:125px}
+  .lok-mall-head {font-weight:800;color:#aaa3c8;font-size:13px;margin:18px 0 12px}
+  .lok-locations {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px}
+  .lok-locations div {border:1px solid rgba(245,158,11,.32);background:rgba(245,158,11,.08);border-radius:15px;padding:20px 13px;min-height:110px;display:flex;flex-direction:column;gap:14px}
+  .lok-locations b {font-size:18px;color:#fcecb4;line-height:1.2}
+  .lok-locations span {font-size:12px;color:#aaa5b7}
+  .lok-dual {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px;margin-top:14px}
+  .lok-dual .lok-panel {min-height:220px}
+  .lok-caveat {border-top:1px solid rgba(255,255,255,.1);padding-top:9px;color:#d2c595 !important}
+  .lok-topline {font-size:12px;color:#e8bd72;font-weight:900;letter-spacing:.07em}
+  .lok-compare .lok-panel {min-height:220px}
+  .lok-calc {display:grid;grid-template-columns:1fr .85fr;gap:20px;margin-top:10px;align-items:stretch}
+  .lok-controls,.lok-calc-output {border:1px solid rgba(255,255,255,.12);border-radius:16px;background:rgba(21,20,33,.9);padding:17px 20px}
+  .lok-controls label {display:flex;justify-content:space-between;gap:12px;font-size:12px;font-weight:800;color:#b8b4c5;margin-bottom:6px}
+  .lok-controls label strong {color:#67e8f9;font-size:14px}
+  .lok-controls input {width:100%;accent-color:#22d3ee;margin-bottom:16px;cursor:pointer}
+  .lok-controls input:focus-visible {outline:2px solid #67e8f9;outline-offset:4px}
+  .lok-calc-output {display:flex;justify-content:center;flex-direction:column}
+  .lok-calc-output small {color:#d1c9dc;font-size:12px;font-weight:800}
+  .lok-calc-output strong {color:#c8ff24;font-size:33px;font-weight:900;margin:12px 0}
+  .lok-calc-output p {font-size:11px;color:#aaa6b9;line-height:1.5}
+  .lok-conclusion {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px;margin-top:8px}
+  .lok-takeaway {display:flex;flex-direction:column;gap:12px;border:1px solid rgba(16,185,129,.28);background:rgba(16,185,129,.055);border-radius:14px;padding:18px 15px;min-height:136px}
+  .lok-takeaway strong {color:#70ead0;font-size:17px}
+  .lok-takeaway span {color:#c6c2d2;line-height:1.6;font-size:12px}
+  .lok-credits {margin-top:9px;color:#77758a;font-size:10px;line-height:1.45}
+  @container (max-width: 800px) {
+    .lok-panel h3{font-size:16px}.lok-panel p{font-size:11px}
+    .lok-mini b{font-size:14px}.lok-mini p{font-size:10px}
+    .lok-stat span{font-size:22px}.lok-stat small{font-size:9px}
+    .lok-intro h1{font-size:40px}.lok-brand{font-size:43px}
+    .lok-bigline{font-size:17px}.lok-statement{font-size:12px}
+    .lok-calc-output strong{font-size:23px}
+  }
+</style>
+<script>
+  const sales=document.getElementById('lokSales') as HTMLInputElement|null;
+  const rate=document.getElementById('lokRate') as HTMLInputElement|null;
+  if(sales && rate){
+    const number=(n:number)=>new Intl.NumberFormat('ar-EG',{maximumFractionDigits:0}).format(n);
+    const put=(id:string,value:string)=>{const e=document.getElementById(id);if(e)e.textContent=value;};
+    const update=()=>{
+      const v=Number(sales.value),p=Number(rate.value);
+      put('lokSalesValue',number(v)+' ج');
+      put('lokRateValue',number(p)+'٪');
+      put('lokIncome',number(v*p/100)+' ج');
+    };
+    for(const input of [sales,rate]){
+      input.addEventListener('input',update);
+      // Syntax Deck's global arrow-key navigation must not hijack interactive sliders.
+      input.addEventListener('keydown',e=>e.stopPropagation());
+    }
+    update();
+  }
+</script>

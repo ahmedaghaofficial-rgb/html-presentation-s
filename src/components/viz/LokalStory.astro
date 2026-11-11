@@ -1,0 +1,108 @@
+---
+/**
+ * LOKAL business case visualizations, based on Syntax Deck's original Canvas primitives.
+ * Three reusable scenes share the same drawing engine but use unique DOM references.
+ */
+interface Props {
+  scene: 'ecosystem' | 'journey' | 'loyalty';
+  label: string;
+}
+const { scene, label } = Astro.props;
+---
+<div class="lokal-viz-wrap">
+  <canvas class="lokal-scene" data-scene={scene} role="img" aria-label={label}>
+    {label}
+  </canvas>
+</div>
+<style>
+  .lokal-viz-wrap { width:100%; height:322px; position:relative; }
+  .lokal-viz-wrap canvas { width:100%; height:100%; position:absolute; inset:0; display:block; }
+</style>
+<script>
+  import { fit, loop, CL, card, marker, arrow, pill, txt, at, ease, board } from '@lib/viz';
+  type Ctx = CanvasRenderingContext2D;
+  const W = 960, H = 325;
+  const neon = '#c8ff24';
+
+  const fade = (ctx:Ctx, a:number, fn:()=>void) => {
+    if (a <= 0) return;
+    ctx.save(); ctx.globalAlpha *= ease(Math.min(1,a)); fn(); ctx.restore();
+  };
+  function box(ctx:Ctx, x:number,y:number,w:number,h:number,headline:string,desc:string,color:string,p:number) {
+    fade(ctx,p,()=>{
+      card(ctx,x,y,w,h,{stroke:color,fill:'rgba(17,17,28,.96)',r:16,glow:0.18});
+      txt(ctx,headline,x+w/2,y+29,{col:color,size:18,weight:900});
+      txt(ctx,desc,x+w/2,y+58,{col:CL.chalk,size:12,weight:700});
+    });
+  }
+  function ecosystem(ctx:Ctx,f:number) {
+    board(ctx,W,H,{title:'LOKAL — مركز المنظومة',frame:f,pad:10});
+    const pB=at(f,25,110),pC=at(f,75,165),pM=at(f,125,215),pL=at(f,215,290);
+    box(ctx,38,95,224,95,'البراندات المصرية','محتاجة توزيع وظهور',CL.cyan,pB);
+    box(ctx,698,95,224,95,'العميل','اختيار + تجربة + ثقة',CL.pink,pC);
+    box(ctx,359,229,242,77,'المولات','تنوع وزيارات محتملة',CL.amber,pM);
+    marker(ctx,[[262,143],[354,143],[395,164]],at(f,180,260),CL.cyan,3);
+    marker(ctx,[[698,143],[606,143],[566,164]],at(f,220,290),CL.pink,3);
+    marker(ctx,[[480,229],[480,198]],at(f,260,315),CL.amber,3);
+    fade(ctx,pL,()=>{
+      card(ctx,395,117,171,85,{stroke:neon,fill:'rgba(29,39,15,.95)',r:18,glow:1});
+      txt(ctx,'LOKAL',480,148,{size:31,col:neon,weight:900});
+      txt(ctx,'قناة بيع وتجربة وتسويق',480,180,{size:11,col:CL.chalk,weight:700});
+    });
+    fade(ctx,at(f,315,395),()=>txt(ctx,'القيمة بتتولد من توصيل الأطراف — مش من تصنيع المنتج',480,60,{size:16,col:CL.chalk,weight:800}));
+  }
+  function journey(ctx:Ctx,f:number) {
+    board(ctx,W,H,{title:'رحلة العميل',frame:f,pad:10});
+    const items=[
+      {x:38,t:'يشوف البراند',d:'Social / Instagram',c:CL.pink},
+      {x:271,t:'يجرب ويقارن',d:'زيارة محل',c:CL.cyan},
+      {x:504,t:'يشتري',d:'أونلاين أو في الفرع',c:CL.amber},
+      {x:737,t:'يرجع تاني',d:'تجربة + مكافآت',c:CL.green}
+    ];
+    items.forEach((v,i)=>{
+      const p=at(f,30+i*93,110+i*93);
+      box(ctx,v.x,104,187,108,v.t,v.d,v.c,p);
+      if(i<3) arrow(ctx,v.x+194,158,items[i+1].x-8,158,CL.dim,{a:ease(at(f,85+i*93,140+i*93)),lw:3,head:10});
+    });
+    fade(ctx,at(f,400,460),()=>{
+      pill(ctx,'المسار تحليلي — مش بيانات Customer Journey منشورة',480,262,{col:CL.amber,size:12.5,padX:22});
+      txt(ctx,'الجمع بين اللمس الفعلي والشراء الرقمي يقلل الاحتكاك',480,63,{size:16,col:CL.chalk,weight:800});
+    });
+  }
+  function loyalty(ctx:Ctx,f:number) {
+    board(ctx,W,H,{title:'حلقة التفاعل والولاء',frame:f,pad:10});
+    const steps=[
+      {x:87,y:87,t:'تسوّق محلي',d:'داخل أو خارج LOKAL',c:CL.cyan},
+      {x:657,y:87,t:'اجمع نقاط',d:'فاتورة / شراء / دعوة',c:CL.pink},
+      {x:657,y:225,t:'استبدل مكافآت',d:'Voucher للشراء',c:CL.amber},
+      {x:87,y:225,t:'زيارة جديدة',d:'فرصة تكرار الشراء',c:CL.green}
+    ];
+    steps.forEach((s,i)=>box(ctx,s.x,s.y,218,78,s.t,s.d,s.c,at(f,i*110+25,i*110+90)));
+    marker(ctx,[[305,126],[657,126]],at(f,100,155),CL.cyan,3);
+    marker(ctx,[[765,165],[765,225]],at(f,215,270),CL.pink,3);
+    marker(ctx,[[657,265],[305,265]],at(f,328,380),CL.amber,3);
+    marker(ctx,[[195,225],[195,165]],at(f,420,477),CL.green,3);
+    fade(ctx,at(f,465,525),()=>{
+      pill(ctx,'LOKAL LOYALTY',480,187,{col:neon,size:17,padX:26,h:35});
+      txt(ctx,'الميزة معلنة — تأثيرها على الاحتفاظ بالعملاء غير منشور',480,66,{size:13,col:CL.chalk,weight:800});
+    });
+  }
+  document.querySelectorAll<HTMLCanvasElement>('.lokal-scene').forEach((canvas)=>{
+    const s=fit(canvas);
+    const scene=canvas.dataset.scene;
+    loop((frame)=>{
+      const {ctx,W:width,H:height}=s;
+      if(!width||!height) return;
+      ctx.clearRect(0,0,width,height);
+      const scale=Math.min(width/W,height/H);
+      ctx.save();
+      ctx.translate((width-W*scale)/2,(height-H*scale)/2);
+      ctx.scale(scale,scale);
+      const f=frame%650;
+      if(scene==='ecosystem') ecosystem(ctx,f);
+      if(scene==='journey') journey(ctx,f);
+      if(scene==='loyalty') loyalty(ctx,f);
+      ctx.restore();
+    });
+  });
+</script>

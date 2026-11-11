@@ -18,3 +18,9 @@ jobs:
       - name: Verify generated LOKAL presentation
         run: |
           test -f dist/lokal.html || test -f dist/lokal/index.html
+      - name: Package built site for offline viewing
+        uses: actions/upload-artifact@v4
+        with:
+          name: syntax-deck-lokal-static-site
+          path: dist/
+          if-no-files-found: error
